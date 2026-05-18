@@ -41,13 +41,33 @@
     .result-time{font-size:12px;color:var(--muted);margin-top:2px}
     #mapToggle{padding:8px 14px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;color:#475569;white-space:nowrap;transition:all 0.2s}
     #mapToggle.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+
+    /* ── REAL BLOCK MAP ── */
     #mapView{background:#fff;border-radius:20px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,0.07);display:none}
-    .map-visual{position:relative;height:110px}
-    .map-road{position:absolute;top:50%;left:0;right:0;height:26px;transform:translateY(-50%);background:#374151;border-radius:4px}
-    .map-dashes{position:absolute;top:50%;left:0;right:0;height:2px;transform:translateY(-50%);background:repeating-linear-gradient(90deg,#fbbf24 0,#fbbf24 18px,transparent 18px,transparent 36px)}
-    .map-block{position:absolute;width:23%;height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:monospace;font-weight:700}
-    .map-pin{position:absolute;top:50%;transform:translateY(-50%);font-size:20px;z-index:10}
-    .map-side-label{position:absolute;right:0;font-size:9px;color:#999;font-family:monospace}
+    .map-label{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;color:#888;margin-bottom:14px;text-transform:uppercase}
+    .map-street-wrap{position:relative;overflow-x:auto;padding-bottom:4px}
+    .map-street{display:flex;flex-direction:column;gap:4px;min-width:max-content}
+    .map-side-row{display:flex;gap:4px;align-items:center}
+    .map-side-tag{font-size:10px;font-family:monospace;color:#94a3b8;width:32px;flex-shrink:0;text-align:right}
+    .map-road-row{height:22px;display:flex;align-items:center;padding:0 36px}
+    .map-road-line{flex:1;background:#374151;border-radius:3px;height:22px;position:relative;overflow:hidden}
+    .map-road-dashes{position:absolute;top:50%;left:0;right:0;height:2px;transform:translateY(-50%);background:repeating-linear-gradient(90deg,#fbbf24 0,#fbbf24 14px,transparent 14px,transparent 28px)}
+    .map-block-chip{padding:6px 10px;border-radius:8px;font-size:10px;font-family:monospace;font-weight:700;white-space:nowrap;position:relative;cursor:pointer;transition:all 0.15s;border:2px solid transparent}
+    .map-block-chip.is-user{border-style:solid;box-shadow:0 0 0 3px rgba(79,70,229,0.3)}
+    .map-legend{font-size:11px;color:#aaa;margin-top:10px;display:flex;gap:12px;flex-wrap:wrap}
+
+    /* ── NEARBY STREETS ── */
+    .nearby-card{background:#fff;border-radius:20px;padding:20px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
+    .nearby-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:900;color:var(--dark);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .nearby-street{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:all 0.15s}
+    .nearby-street:last-child{border-bottom:none;padding-bottom:0}
+    .nearby-street:active{opacity:0.7}
+    .nearby-street-name{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;text-transform:capitalize}
+    .nearby-street-detail{font-size:12px;color:#64748b;margin-top:2px}
+    .nearby-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-left:12px}
+    .nearby-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0;margin-left:8px}
+
+    /* ── STATUS CARDS ── */
     .status-card{background:#fff;border-radius:20px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
     .card-bar{height:6px}
     .card-body{padding:16px 20px}
@@ -55,10 +75,12 @@
     .card-side-label{font-size:11px;font-family:monospace;letter-spacing:1px;color:var(--muted);margin-bottom:4px;text-transform:uppercase}
     .card-status{font-family:'Syne',sans-serif;font-size:19px;font-weight:900}
     .card-detail{font-size:13px;color:#64748b;margin-top:4px}
-    .card-block{font-size:11px;color:#94a3b8;margin-top:6px;font-family:monospace}
+    .card-block{font-size:11px;color:#94a3b8;margin-top:6px;font-family:monospace;background:#f8fafc;padding:4px 8px;border-radius:6px;display:inline-block}
     .card-icon{font-size:30px;margin-left:12px}
     .reminder-btn{margin-top:12px;width:100%;padding:10px;border-radius:12px;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--indigo);display:flex;align-items:center;justify-content:center;gap:6px}
     .reminder-btn:active{background:#ede9fe}
+
+    /* ── PERMIT CARD ── */
     .permit-card{background:#fff;border-radius:20px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
     .permit-bar{height:6px;background:linear-gradient(90deg,#6366f1,#8b5cf6)}
     .permit-body{padding:16px 20px}
@@ -67,11 +89,13 @@
     .permit-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
     .permit-badge{padding:4px 10px;border-radius:20px;font-family:'Syne',sans-serif;font-weight:800;font-size:11px;white-space:nowrap;flex-shrink:0}
     .permit-text{font-size:13px;color:#475569;line-height:1.5}
+
+    /* ── MISC ── */
     #notFound{background:#fff;border-radius:20px;padding:28px;text-align:center;display:none}
     #emptyState{text-align:center;padding:28px 0;color:var(--muted)}
     #quickLabel{font-size:11px;font-family:monospace;letter-spacing:2px;color:var(--muted);margin-bottom:8px}
     #quickChips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-    .chip{padding:8px 14px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;color:#334155;font-weight:500;text-transform:capitalize;transition:all 0.15s}
+    .chip{padding:8px 14px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;color:#334155;font-weight:500;text-transform:capitalize}
     .chip:active{background:#f8fafc;transform:scale(0.97)}
     #holidayBanner{background:#dcfce7;border-radius:16px;padding:14px 18px;border:2px solid var(--safe);color:#166534;font-weight:700;font-size:14px;margin-top:4px;display:none}
     #remindersSection{margin-top:24px;display:none}
@@ -94,7 +118,7 @@
     .modal-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:900;color:var(--dark);margin-bottom:6px}
     .modal-sub{color:#64748b;font-size:14px;margin-bottom:20px}
     .time-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-    .time-chip{padding:8px 16px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;color:#334155;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.15s}
+    .time-chip{padding:8px 16px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;color:#334155;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer}
     .time-chip.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
     .modal-actions{display:flex;gap:10px}
     .btn-cancel{flex:1;padding:13px;border-radius:14px;border:2px solid #e2e8f0;background:#fff;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;font-size:14px}
@@ -137,7 +161,7 @@
     <button id="gpsBtn">📍 Use my location</button>
     <div id="gpsError" style="color:rgba(255,180,180,1);font-size:12px;text-align:center;margin-bottom:8px;display:none"></div>
     <div class="search-wrap">
-      <input id="searchInput" type="text" placeholder="e.g. 1760 University Ave" autocomplete="off" autocorrect="off" spellcheck="false"/>
+      <input id="searchInput" type="text" placeholder="e.g. 2020 Cedar St" autocomplete="off" autocorrect="off" spellcheck="false"/>
       <button id="searchBtn">→</button>
     </div>
     <div class="search-hint">Enter full address for block-level accuracy 🎯</div>
@@ -150,13 +174,13 @@
     <div id="quickChips"></div>
     <div id="emptyState">
       <div style="font-size:52px;margin-bottom:12px">🅿️</div>
-      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#475569;margin-bottom:6px">Enter your address for block-level accuracy</div>
-      <div style="font-size:13px;color:#94a3b8">e.g. "1760 University Ave" or "2100 Berryman St"</div>
-      <div style="margin-top:16px;background:#fff;border-radius:16px;padding:16px;font-size:12px;color:#64748b;line-height:1.8;text-align:left">
-        <strong style="color:#334155">📋 Real data from Berkeley's official PDFs</strong><br>
-        34 Berkeley streets · exact schedule per block<br>
-        🟢 Green badge = block-level accuracy<br>
-        🟡 Yellow badge = add house number for exact block
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#475569;margin-bottom:6px">Enter your address for exact block accuracy</div>
+      <div style="font-size:13px;color:#94a3b8">e.g. "2020 Cedar St" or "1500 Milvia St"</div>
+      <div style="margin-top:16px;background:#fff;border-radius:16px;padding:16px;font-size:13px;color:#64748b;line-height:2;text-align:left">
+        🎯 Block-level accuracy for 34 Berkeley streets<br>
+        🚶 Nearby safe streets if yours is restricted<br>
+        🔔 Reminders before restrictions start<br>
+        📍 GPS auto-detects your address
       </div>
     </div>
   </div>
@@ -176,11 +200,16 @@
     </div>
     <div id="accuracyBadge"></div>
     <div id="mapView">
-      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;color:#888;margin-bottom:14px;text-transform:uppercase" id="mapLabel"></div>
-      <div class="map-visual" id="mapVisual"><div class="map-road"><div class="map-dashes"></div></div></div>
-      <div style="font-size:11px;color:#aaa;margin-top:10px">🟢 Safe · 🟡 Warning · 🔴 No parking · 📍 Your spot</div>
+      <div class="map-label" id="mapLabel"></div>
+      <div class="map-street-wrap">
+        <div class="map-street" id="mapStreet"></div>
+      </div>
+      <div class="map-legend">
+        <span>🟢 Safe</span><span>🟡 Warning</span><span>🔴 No parking</span><span>📍 Your block</span>
+      </div>
     </div>
     <div id="statusCards"></div>
+    <div id="nearbyCard"></div>
     <div id="permitCard"></div>
     <div id="holidayBanner">🎉 City holiday — street sweeping suspended!</div>
   </div>
@@ -189,16 +218,15 @@
     <div id="remindersList"></div>
   </div>
   <div id="shareBanner">
-    <h3>Share ParkSafe with a friend 🚗</h3>
+    <h3>Know a busy mum? Share ParkSafe 🚗</h3>
     <p>Free · No account · Works on any phone</p>
     <button id="shareBtn">📤 Share</button>
   </div>
   <div id="footer">REAL DATA · CITY OF BERKELEY OFFICIAL PDFS · ALWAYS CHECK POSTED SIGNS</div>
 </div>
+
 <script>
-// ── REAL BLOCK DATA — Berkeley Official PDFs ──────────────────────────────────
-// [fromAddr, toAddr, side, week, day, ampm, startH, startM, endH, endM]
-// Even addr = S/W side · Odd addr = N/E side
+// ── BLOCK DATA — Berkeley Official PDFs ───────────────────────────────────────
 const BB={
   "berryman":[[1800,1820,"S","2nd","thursday","PM",12,30,14,30],[1801,1819,"N","2nd","thursday","PM",12,30,14,30],[1820,1998,"S","2nd","friday","PM",12,30,14,30]],
   "california":[[1330,1798,"W","2nd","tuesday","PM",12,30,14,30],[1400,1598,"W","2nd","thursday","PM",12,30,14,30],[1401,1599,"E","2nd","friday","PM",12,30,14,30],[1600,1798,"W","2nd","wednesday","PM",12,30,14,30],[1601,1799,"E","2nd","tuesday","PM",12,30,14,30],[1900,1998,"W","2nd","wednesday","PM",12,30,14,30],[1901,1999,"E","2nd","tuesday","PM",12,30,14,30],[2000,2898,"W","1st","wednesday","AM",8,0,10,0],[2001,2899,"E","1st","thursday","AM",8,0,10,0],[2900,3398,"W","1st","wednesday","AM",8,0,10,0],[2901,3499,"E","1st","thursday","AM",8,0,10,0]],
@@ -236,39 +264,59 @@ const BB={
   "dwight":[[830,1498,"S","1st","friday","AM",8,0,10,0],[831,1499,"N","2nd","monday","AM",8,0,10,0],[1500,1898,"S","1st","tuesday","AM",8,0,10,0],[1501,1899,"N","1st","monday","AM",8,0,10,0]],
 };
 
+// ── NEARBY STREET GRID (Berkeley N-S and E-W ordering) ───────────────────────
+// Streets listed in geographic order so we can find neighbors
+const GRID={
+  ew:["solano","hopkins","cedar","virginia","rose","lincoln","berryman","hearst","university","addison","bancroft","allston","channing","dwight","blake","parker","ward","carleton","russell","oregon","alcatraz"],
+  ns:["san pablo","acton","stannage","sacramento","mcgee","milvia","m l king","california","shattuck","telegraph","college","piedmont"]
+};
+
+function getNearbyStreets(streetKey, num, n=3){
+  const results=[];
+  for(const axis of [GRID.ew, GRID.ns]){
+    const idx=axis.findIndex(s=>s===streetKey||streetKey.includes(s)||s.includes(streetKey));
+    if(idx>=0){
+      for(let i=Math.max(0,idx-n);i<=Math.min(axis.length-1,idx+n);i++){
+        if(i!==idx && BB[axis[i]]) results.push({street:axis[i],distance:Math.abs(i-idx)});
+      }
+      break;
+    }
+  }
+  return results.sort((a,b)=>a.distance-b.distance).slice(0,4);
+}
+
+// ── OTHER CITIES ──────────────────────────────────────────────────────────────
 const OC={
-  oakland:{"broadway":[{side:"East",day:"tuesday",week:"1st",startH:7,startM:0,endH:9,endM:0},{side:"West",day:"wednesday",week:"2nd",startH:7,startM:0,endH:9,endM:0}],"telegraph ave":[{side:"East",day:"thursday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"friday",week:"2nd",startH:8,startM:0,endH:10,endM:0}],"grand ave":[{side:"North",day:"monday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"tuesday",week:"4th",startH:9,startM:0,endH:11,endM:0}],"piedmont ave":[{side:"East",day:"wednesday",week:"3rd",startH:10,startM:0,endH:12,endM:0},{side:"West",day:"friday",week:"1st",startH:10,startM:0,endH:12,endM:0}],"lakeshore ave":[{side:"North",day:"thursday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}],"macarthur blvd":[{side:"North",day:"tuesday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"wednesday",week:"3rd",startH:8,startM:0,endH:10,endM:0}],"fruitvale ave":[{side:"East",day:"monday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"thursday",week:"4th",startH:9,startM:0,endH:11,endM:0}],"international blvd":[{side:"North",day:"wednesday",week:"1st",startH:7,startM:0,endH:9,endM:0},{side:"South",day:"friday",week:"3rd",startH:7,startM:0,endH:9,endM:0}],"college ave":[{side:"East",day:"tuesday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"thursday",week:"4th",startH:9,startM:0,endH:11,endM:0}]},
-  "el cerrito":{"san pablo ave":[{side:"East",day:"monday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}],"carlson blvd":[{side:"East",day:"tuesday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"tuesday",week:"4th",startH:9,startM:0,endH:11,endM:0}],"fairmount ave":[{side:"North",day:"thursday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"thursday",week:"4th",startH:9,startM:0,endH:11,endM:0}],"madera ave":[{side:"North",day:"friday",week:"1st",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"friday",week:"3rd",startH:9,startM:0,endH:11,endM:0}],"key blvd":[{side:"East",day:"monday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"monday",week:"4th",startH:8,startM:0,endH:10,endM:0}],"richmond st":[{side:"North",day:"tuesday",week:"1st",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"tuesday",week:"3rd",startH:9,startM:0,endH:11,endM:0}],"highland ave":[{side:"East",day:"wednesday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"wednesday",week:"4th",startH:8,startM:0,endH:10,endM:0}]},
+  oakland:{"broadway":[{side:"East",day:"tuesday",week:"1st",startH:7,startM:0,endH:9,endM:0},{side:"West",day:"wednesday",week:"2nd",startH:7,startM:0,endH:9,endM:0}],"telegraph ave":[{side:"East",day:"thursday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"friday",week:"2nd",startH:8,startM:0,endH:10,endM:0}],"grand ave":[{side:"North",day:"monday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"tuesday",week:"4th",startH:9,startM:0,endH:11,endM:0}],"piedmont ave":[{side:"East",day:"wednesday",week:"3rd",startH:10,startM:0,endH:12,endM:0},{side:"West",day:"friday",week:"1st",startH:10,startM:0,endH:12,endM:0}],"lakeshore ave":[{side:"North",day:"thursday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}],"macarthur blvd":[{side:"North",day:"tuesday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"wednesday",week:"3rd",startH:8,startM:0,endH:10,endM:0}],"fruitvale ave":[{side:"East",day:"monday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"thursday",week:"4th",startH:9,startM:0,endH:11,endM:0}],"college ave":[{side:"East",day:"tuesday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"thursday",week:"4th",startH:9,startM:0,endH:11,endM:0}]},
+  "el cerrito":{"san pablo ave":[{side:"East",day:"monday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}],"carlson blvd":[{side:"East",day:"tuesday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"tuesday",week:"4th",startH:9,startM:0,endH:11,endM:0}],"fairmount ave":[{side:"North",day:"thursday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"thursday",week:"4th",startH:9,startM:0,endH:11,endM:0}],"madera ave":[{side:"North",day:"friday",week:"1st",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"friday",week:"3rd",startH:9,startM:0,endH:11,endM:0}],"key blvd":[{side:"East",day:"monday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"monday",week:"4th",startH:8,startM:0,endH:10,endM:0}],"richmond st":[{side:"North",day:"tuesday",week:"1st",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"tuesday",week:"3rd",startH:9,startM:0,endH:11,endM:0}]},
   "san francisco":{"market st":[{side:"North",day:"monday",week:"1st",startH:7,startM:0,endH:9,endM:0},{side:"South",day:"wednesday",week:"3rd",startH:7,startM:0,endH:9,endM:0}],"valencia st":[{side:"East",day:"tuesday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"thursday",week:"4th",startH:8,startM:0,endH:10,endM:0}],"mission st":[{side:"East",day:"monday",week:"3rd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"friday",week:"1st",startH:9,startM:0,endH:11,endM:0}],"haight st":[{side:"North",day:"wednesday",week:"2nd",startH:10,startM:0,endH:12,endM:0},{side:"South",day:"tuesday",week:"4th",startH:10,startM:0,endH:12,endM:0}],"divisadero st":[{side:"East",day:"thursday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}]},
 };
 
-const RPP={"berryman":"E","cedar":"E","california":"E","virginia":"E","college":"C","sacramento":"C","channing":"C","dwight":"C","rose":"C","hearst":"C"};
+const RPP={"berryman":"E","cedar":"E","california":"E","virginia":"E","rose":"C","hearst":"C","college":"C","channing":"C","dwight":"C","sacramento":"C"};
 const RPP_INFO={"E":{label:"Zone E",hours:"Mon–Fri 8am–7pm + Sat",color:"#7c3aed",text:"#fff"},"C":{label:"Zone C",hours:"Mon–Fri 8am–7pm",color:"#0369a1",text:"#fff"}};
 const HOLIDAYS=["2026-01-01","2026-01-19","2026-02-16","2026-05-25","2026-07-03","2026-09-07","2026-11-11","2026-11-26","2026-12-25"];
 const DAYS=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
 const WEEKS=["","1st","2nd","3rd","4th","5th"];
-const COLORS={SAFE:"#34C759",WARN:"#FF9500",DANGER:"#FF3B30"};
-const ICONS={SAFE:"✅",WARN:"⏰",DANGER:"🚨"};
+const C={SAFE:"#34C759",WARN:"#FF9500",DANGER:"#FF3B30"};
+const IC={SAFE:"✅",WARN:"⏰",DANGER:"🚨"};
 
-let city="berkeley",results=null,now=new Date(),selMins=30,modalR=null,mapOpen=false;
+let city="berkeley",res=null,now=new Date(),selMins=30,modalR=null,mapOpen=false;
 let reminders=JSON.parse(localStorage.getItem("ps_r")||"[]"),dip=null;
 
 const nthWeek=d=>Math.ceil(new Date(d).getDate()/7);
 const fmt12=(h,m)=>{const ap=h<12?"AM":"PM";const hh=h===0?12:h>12?h-12:h;return`${hh}:${String(m).padStart(2,"0")} ${ap}`};
 const todayStr=d=>d.toISOString().slice(0,10);
-
-function normalizeStreet(s){return s.toLowerCase().replace(/\b(street|st\.?|avenue|ave\.?|boulevard|blvd\.?|way|road|rd\.?|drive|dr\.?|place|pl\.?|court|ct\.?|terrace|terr\.?)\b/gi,'').trim().replace(/\s+/g,' ')}
-function parseAddr(input){const s=input.toLowerCase().trim();const m=s.match(/^(\d+)\s+(.+)/);if(m)return{num:parseInt(m[1]),street:normalizeStreet(m[2])};return{num:null,street:normalizeStreet(s)}}
-
+function normStreet(s){return s.toLowerCase().replace(/\b(street|st\.?|avenue|ave\.?|boulevard|blvd\.?|way|road|rd\.?|drive|dr\.?|place|pl\.?|court|ct\.?|terrace|terr\.?)\b/gi,'').trim().replace(/\s+/g,' ')}
+function parseAddr(input){const s=input.toLowerCase().trim();const m=s.match(/^(\d+)\s+(.+)/);if(m)return{num:parseInt(m[1]),street:normStreet(m[2])};return{num:null,street:normStreet(s)}}
 function b2r(b,num){const sl=b[2]==="S"?"South":b[2]==="N"?"North":b[2]==="E"?"East":"West";return{side:sl,week:b[3],day:b[4],ampm:b[5],startH:b[6],startM:b[7],endH:b[8],endM:b[9],blockFrom:b[0],blockTo:b[1]}}
 
 function lookupBlock(sk,num){
   const blocks=BB[sk];if(!blocks)return null;
-  if(num===null){const seen=new Set();return{accuracy:"street",restrictions:blocks.map(b=>{if(seen.has(b[2]))return null;seen.add(b[2]);return b2r(b,null)}).filter(Boolean)}}
+  if(num===null){const seen=new Set();return{accuracy:"street",restrictions:blocks.map(b=>{if(seen.has(b[2]))return null;seen.add(b[2]);return b2r(b,null)}).filter(Boolean),allBlocks:blocks}}
   const isEven=num%2===0;const ts=isEven?["S","W"]:["N","E"];
   const match=blocks.filter(b=>num>=b[0]&&num<=b[1]&&ts.includes(b[2]));
-  if(match.length)return{accuracy:"exact",restrictions:match.map(b=>b2r(b,num))};
-  const seen=new Set();return{accuracy:"street",restrictions:blocks.map(b=>{if(seen.has(b[2]))return null;seen.add(b[2]);return b2r(b,null)}).filter(Boolean)};
+  if(match.length)return{accuracy:"exact",restrictions:match.map(b=>b2r(b,num)),allBlocks:blocks,userBlock:match[0]};
+  const seen=new Set();return{accuracy:"street",restrictions:blocks.map(b=>{if(seen.has(b[2]))return null;seen.add(b[2]);return b2r(b,null)}).filter(Boolean),allBlocks:blocks};
 }
 
 function getStatus(r,n){
@@ -283,24 +331,32 @@ function getStatus(r,n){
 const fmtDate=d=>d?d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"";
 const overallCode=rs=>rs.reduce((a,r)=>{const s=getStatus(r,now);if(s.code==="DANGER")return"DANGER";if(s.code==="WARN"&&a!=="DANGER")return"WARN";return a},"SAFE");
 
+// Get overall status for a street given a number
+function streetStatus(sk, num){
+  const r=lookupBlock(sk,num);
+  if(!r)return"SAFE";
+  return overallCode(r.restrictions);
+}
+
 function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000)}
 
 function buildCityTabs(){
-  const el=document.getElementById("cityTabs");
+  const el=document.getElementById("cityTabs");el.innerHTML="";
   ["berkeley","oakland","el cerrito","san francisco"].forEach(c=>{
-    const b=document.createElement("button");b.className="city-tab"+(c===city?" active":"");b.textContent=c==="san francisco"?"SF":c==="el cerrito"?"El Cerrito":c[0].toUpperCase()+c.slice(1);
+    const b=document.createElement("button");b.className="city-tab"+(c===city?" active":"");
+    b.textContent=c==="san francisco"?"SF":c==="el cerrito"?"El Cerrito":c[0].toUpperCase()+c.slice(1);
     b.onclick=()=>{city=c;resetAll();buildCityTabs();buildChips()};el.appendChild(b);
   });
 }
 
 function buildChips(){
   const el=document.getElementById("quickChips");el.innerHTML="";
-  const samples=city==="berkeley"?["2100 Berryman St","1500 Cedar St","1760 University Ave","2200 Milvia St","1800 Russell St"]:Object.keys(OC[city]||{}).slice(0,5);
+  const samples=city==="berkeley"?["2020 Cedar St","2100 Berryman St","1500 Milvia St","1800 Russell St","1500 Hearst Ave"]:Object.keys(OC[city]||{}).slice(0,5);
   samples.forEach(s=>{const b=document.createElement("button");b.className="chip";b.textContent=s;b.onclick=()=>{document.getElementById("searchInput").value=s;doSearch(s)};el.appendChild(b)});
 }
 
 function resetAll(){
-  results=null;mapOpen=false;
+  res=null;mapOpen=false;
   document.getElementById("quickSection").style.display="block";
   document.getElementById("notFound").style.display="none";
   document.getElementById("results").style.display="none";
@@ -318,12 +374,16 @@ function doSearch(input){
   const p=parseAddr(input);
   if(city==="berkeley"){
     const sk=Object.keys(BB).find(k=>k===p.street||k.includes(p.street)||p.street.includes(k));
-    if(sk){const r=lookupBlock(sk,p.num);results={addr:input,street:sk,restrictions:r.restrictions,accuracy:r.accuracy,rpp:RPP[sk]||null,city:"berkeley"};renderResults();return}
+    if(sk){
+      const r=lookupBlock(sk,p.num);
+      res={addr:input,street:sk,num:p.num,restrictions:r.restrictions,accuracy:r.accuracy,allBlocks:r.allBlocks,userBlock:r.userBlock||null,rpp:RPP[sk]||null,city:"berkeley"};
+      renderResults();return;
+    }
   } else {
     const cd=OC[city]||{};const m=Object.entries(cd).find(([k])=>k.includes(p.street)||p.street.includes(k));
-    if(m){results={addr:input,street:m[0],restrictions:m[1],accuracy:"street",city};renderResults();return}
+    if(m){res={addr:input,street:m[0],num:p.num,restrictions:m[1],accuracy:"street",city};renderResults();return}
   }
-  results=null;
+  res=null;
   document.getElementById("quickSection").style.display="none";
   document.getElementById("notFound").style.display="block";
   document.getElementById("results").style.display="none";
@@ -332,8 +392,8 @@ function doSearch(input){
 }
 
 function renderResults(){
-  const{addr,restrictions,accuracy,rpp,city:c}=results;
-  const code=overallCode(restrictions),bg=COLORS[code];
+  const{addr,restrictions,accuracy,allBlocks,userBlock,rpp,city:ct,street,num}=res;
+  const code=overallCode(restrictions),bg=C[code];
   document.getElementById("header").style.background=bg;
   document.getElementById("statusHeadline").textContent=code==="DANGER"?"🚨 Move your car NOW!":code==="WARN"?"⏰ Restriction coming up":"✅ Safe to park!";
   document.getElementById("quickSection").style.display="none";
@@ -342,43 +402,127 @@ function renderResults(){
   document.getElementById("resultAddress").textContent=addr;
   document.getElementById("resultTime").textContent=now.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"})+" · "+now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
   document.getElementById("holidayBanner").style.display=HOLIDAYS.includes(todayStr(now))?"block":"none";
-  document.getElementById("mapLabel").textContent="Map · "+addr;
-  document.getElementById("accuracyBadge").innerHTML=accuracy==="exact"?`<div class="accuracy-badge accuracy-exact">🎯 Block-level accuracy</div>`:`<div class="accuracy-badge accuracy-street">📍 Street-level · Add house number for exact block</div>`;
+  document.getElementById("mapLabel").textContent="Block Map · "+addr;
+  document.getElementById("accuracyBadge").innerHTML=accuracy==="exact"?`<div class="accuracy-badge accuracy-exact">🎯 Block-level accuracy — blocks ${userBlock?userBlock[0]+"-"+userBlock[1]:""}</div>`:`<div class="accuracy-badge accuracy-street">📍 Street-level · Add house number for exact block</div>`;
 
+  // Status cards
   const ce=document.getElementById("statusCards");
   ce.innerHTML=restrictions.map((r,i)=>{
-    const s=getStatus(r,now),cl=COLORS[s.code],ic=ICONS[s.code];
+    const s=getStatus(r,now),cl=C[s.code],ic=IC[s.code];
     let det="";
     if(s.code==="DANGER")det=`Until ${fmt12(r.endH,r.endM)} · ${s.minsLeft} min left`;
     else if(s.code==="WARN")det=`Restriction at ${s.startLabel} · ${s.minsTil} min away`;
     else if(s.nextDate)det=`Next: ${fmtDate(s.nextDate)}, ${fmt12(r.startH,r.startM)}–${fmt12(r.endH,r.endM)}`;
     else if(s.past)det="Restriction passed for today";
-    const bi=r.blockFrom?`<div class="card-block">Blocks ${r.blockFrom}–${r.blockTo} · ${r.week} ${r.day} ${r.ampm}</div>`:"";
+    const bi=r.blockFrom?`<div class="card-block">📍 Blocks ${r.blockFrom}–${r.blockTo} · ${r.week} ${r.day} ${r.ampm}</div>`:"";
     const sr=s.code==="WARN"||(s.code==="SAFE"&&s.nextDate);
     return`<div class="status-card"><div class="card-bar" style="background:${cl}"></div><div class="card-body"><div class="card-inner"><div style="flex:1"><div class="card-side-label">${r.side} side</div><div class="card-status" style="color:${cl}">${ic} ${s.code==="DANGER"?"NO PARKING":s.code==="WARN"?"Move soon":"Safe to park"}</div><div class="card-detail">${det}</div>${bi}</div><div class="card-icon">${ic}</div></div>${sr?`<button class="reminder-btn" data-i="${i}">🔔 Remind me to move my car</button>`:""}</div></div>`;
   }).join("");
   ce.querySelectorAll(".reminder-btn").forEach(b=>{b.onclick=()=>openModal(restrictions[+b.dataset.i])});
 
+  // Nearby streets (show when restricted or warn)
+  renderNearby(street, num, code, ct);
+
+  // Permit card
   const pe=document.getElementById("permitCard");
-  if(rpp&&RPP_INFO[rpp]){const z=RPP_INFO[rpp];pe.innerHTML=`<div class="permit-card"><div class="permit-bar"></div><div class="permit-body"><div class="permit-title">🅿️ Permit Parking — ${z.label}</div><div class="permit-row"><span class="permit-badge" style="background:${z.color};color:${z.text}">${z.label}</span><div class="permit-text"><strong>2 hour limit</strong> for non-permit holders<br>${z.hours}</div></div><div class="permit-row"><span class="permit-badge" style="background:#34C759;color:#fff">✓ Exempt</span><div class="permit-text">${z.label} permit holders can park beyond 2 hours</div></div><div class="permit-row"><span class="permit-badge" style="background:#f1f5f9;color:#64748b">⚠️</span><div class="permit-text">RPP permits do <strong>not</strong> override street sweeping</div></div></div></div>`;}
-  else if(c==="berkeley"){pe.innerHTML=`<div class="permit-card"><div class="permit-bar"></div><div class="permit-body"><div class="permit-title">🅿️ Parking</div><div class="permit-row"><span class="permit-badge" style="background:#f1f5f9;color:#64748b">Info</span><div class="permit-text">No RPP zone — standard parking rules apply. Check posted signs.</div></div></div></div>`;}
+  if(rpp&&RPP_INFO[rpp]){const z=RPP_INFO[rpp];pe.innerHTML=`<div class="permit-card"><div class="permit-bar"></div><div class="permit-body"><div class="permit-title">🅿️ Permit Zone — ${z.label}</div><div class="permit-row"><span class="permit-badge" style="background:${z.color};color:${z.text}">${z.label}</span><div class="permit-text"><strong>2 hour limit</strong> for non-permit holders<br>${z.hours}</div></div><div class="permit-row"><span class="permit-badge" style="background:#34C759;color:#fff">✓ Exempt</span><div class="permit-text">${z.label} permit holders can park beyond 2 hours</div></div><div class="permit-row"><span class="permit-badge" style="background:#f1f5f9;color:#64748b">⚠️</span><div class="permit-text">RPP permits do <strong>not</strong> override street sweeping</div></div></div></div>`;}
+  else if(ct==="berkeley"){pe.innerHTML=`<div class="permit-card"><div class="permit-bar"></div><div class="permit-body"><div class="permit-title">🅿️ Parking</div><div class="permit-row"><span class="permit-badge" style="background:#f1f5f9;color:#64748b">Info</span><div class="permit-text">No RPP zone on this street. Standard parking rules apply — always check posted signs.</div></div></div></div>`;}
   else pe.innerHTML="";
 
-  renderMap(restrictions);renderReminders();
+  renderMap(allBlocks, userBlock, street);
+  renderReminders();
 }
 
-function renderMap(rs){
-  const v=document.getElementById("mapVisual");
-  v.querySelectorAll(".map-block,.map-side-label,.map-pin").forEach(e=>e.remove());
-  const top=rs[0],bot=rs[1]||rs[0];
-  [{l:"100–199",p:0},{l:"200–299",p:25},{l:"300–399",p:50},{l:"400–499",p:75}].forEach((b,i)=>{
-    const ts=getStatus(top,now),bs=getStatus(bot,now);
-    const te=document.createElement("div");te.className="map-block";te.style.cssText=`top:0;left:${b.p}%;background:${COLORS[ts.code]}22;border:2px solid ${COLORS[ts.code]};color:${COLORS[ts.code]}`;te.textContent=b.l;v.appendChild(te);
-    const be=document.createElement("div");be.className="map-block";be.style.cssText=`bottom:0;left:${b.p}%;background:${COLORS[bs.code]}22;border:2px solid ${COLORS[bs.code]};color:${COLORS[bs.code]}`;be.textContent=b.l;v.appendChild(be);
+// ── REAL BLOCK MAP ────────────────────────────────────────────────────────────
+function renderMap(allBlocks, userBlock, streetName){
+  const container=document.getElementById("mapStreet");
+  container.innerHTML="";
+  if(!allBlocks||!allBlocks.length)return;
+
+  // Get unique sides
+  const sides=[...new Set(allBlocks.map(b=>b[2]))];
+  const sideLabel=s=>s==="S"?"South":s==="N"?"North":s==="E"?"East":"West";
+
+  // For each side, get all blocks sorted by address
+  sides.forEach((side,si)=>{
+    const sideBlocks=allBlocks.filter(b=>b[2]===side).sort((a,b)=>a[0]-b[0]);
+    if(!sideBlocks.length)return;
+
+    // Build a fake restriction to get status
+    const row=document.createElement("div");
+    row.className="map-side-row";
+
+    const tag=document.createElement("div");
+    tag.className="map-side-tag";
+    tag.textContent=sideLabel(side);
+    row.appendChild(tag);
+
+    sideBlocks.forEach(b=>{
+      const r=b2r(b,null);
+      const s=getStatus(r,now);
+      const isUser=userBlock&&b[0]===userBlock[0]&&b[1]===userBlock[1]&&b[2]===userBlock[2];
+      const chip=document.createElement("div");
+      chip.className="map-block-chip"+(isUser?" is-user":"");
+      chip.style.cssText=`background:${C[s.code]}22;border-color:${C[s.code]};color:${C[s.code]}`;
+      chip.innerHTML=`${b[0]}–${b[1]}${isUser?" 📍":""}`;
+      chip.title=`${sideLabel(b[2])} ${b[0]}–${b[1]}: ${b[3]} ${b[4]} ${b[5]} ${fmt12(b[6],b[7])}–${fmt12(b[8],b[9])}`;
+      row.appendChild(chip);
+    });
+    container.appendChild(row);
+
+    // Add road divider between sides
+    if(si===0&&sides.length>1){
+      const road=document.createElement("div");
+      road.className="map-road-row";
+      road.innerHTML=`<div class="map-road-line"><div class="map-road-dashes"></div></div>`;
+      container.appendChild(road);
+    }
   });
-  const pin=document.createElement("div");pin.className="map-pin";pin.style.left="27%";pin.textContent="📍";v.appendChild(pin);
-  const tl=document.createElement("div");tl.className="map-side-label";tl.style.cssText="top:4px;right:0";tl.textContent=top.side+" ↑";v.appendChild(tl);
-  const bl=document.createElement("div");bl.className="map-side-label";bl.style.cssText="bottom:4px;right:0";bl.textContent=bot.side+" ↓";v.appendChild(bl);
+}
+
+// ── NEARBY STREETS ────────────────────────────────────────────────────────────
+function renderNearby(street, num, currentCode, ct){
+  const el=document.getElementById("nearbyCard");
+  if(ct!=="berkeley"){el.innerHTML="";return}
+
+  const nearby=getNearbyStreets(street, num);
+  if(!nearby.length){el.innerHTML="";return}
+
+  // Always show nearby — more useful when restricted, but helpful anytime
+  const nearbyWithStatus=nearby.map(n=>{
+    const st=streetStatus(n.street, num);
+    return{...n, status:st};
+  });
+
+  const hasDanger=currentCode==="DANGER"||currentCode==="WARN";
+  const safeNearby=nearbyWithStatus.filter(n=>n.status==="SAFE");
+
+  const icon=hasDanger?"🚶 Walk to a safe spot nearby":"🗺️ Nearby streets";
+  const intro=hasDanger?`Can't park here right now? These nearby streets are currently safe:`:`Other streets near you:`;
+
+  el.innerHTML=`
+    <div class="nearby-card">
+      <div class="nearby-title">${icon}</div>
+      <div style="font-size:13px;color:#64748b;margin-bottom:12px">${intro}</div>
+      ${nearbyWithStatus.map(n=>{
+        const s=n.status;
+        const cl=C[s];
+        const label=s==="SAFE"?"✅ Safe now":s==="WARN"?"⏰ Restriction soon":"🚨 No parking";
+        const nextR=lookupBlock(n.street,num);
+        const nextInfo=nextR&&nextR.restrictions[0]?getStatus(nextR.restrictions[0],now):{};
+        const sub=nextInfo.nextDate?`Next restriction: ${fmtDate(nextInfo.nextDate)}`:"";
+        return`<div class="nearby-street" onclick="document.getElementById('searchInput').value='${num?num+' ':''} ${n.street}';doSearch('${num?num+' ':''} ${n.street}')">
+          <div>
+            <div class="nearby-street-name">${n.street}</div>
+            <div class="nearby-street-detail">${sub||'Tap to check schedule'}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="nearby-badge" style="background:${cl}22;color:${cl}">${label}</span>
+            <span style="color:#94a3b8;font-size:16px">›</span>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`;
 }
 
 function openModal(r){modalR=r;document.getElementById("modalSub").textContent=`Remind me before the ${r.side} side restriction at ${fmt12(r.startH,r.startM)}.`;document.getElementById("modal").classList.add("show")}
@@ -387,10 +531,10 @@ document.getElementById("modal").onclick=e=>{if(e.target===document.getElementBy
 document.querySelectorAll(".time-chip").forEach(c=>{c.onclick=()=>{selMins=+c.dataset.mins;document.querySelectorAll(".time-chip").forEach(x=>x.classList.remove("active"));c.classList.add("active")}});
 document.getElementById("modalSet").onclick=()=>{
   if(!modalR)return;
-  const rem={id:Date.now(),addr:results?.addr,side:modalR.side,mins:selMins,time:fmt12(modalR.startH,modalR.startM),startH:modalR.startH,startM:modalR.startM};
+  const rem={id:Date.now(),addr:res?.addr,side:modalR.side,mins:selMins,time:fmt12(modalR.startH,modalR.startM),startH:modalR.startH,startM:modalR.startM};
   reminders.push(rem);localStorage.setItem("ps_r",JSON.stringify(reminders));
   if("Notification" in window)Notification.requestPermission().then(p=>{if(p==="granted"){const delay=(modalR.startH*60+modalR.startM-now.getHours()*60-now.getMinutes()-selMins)*60000;if(delay>0)setTimeout(()=>new Notification("🚗 ParkSafe: Move your car!",{body:`${rem.side} side of ${rem.addr} — restriction in ${rem.mins} min`}),delay)}});
-  document.getElementById("modal").classList.remove("show");renderReminders();showToast(`🔔 Reminder set — ${selMins} min before restriction!`);
+  document.getElementById("modal").classList.remove("show");renderReminders();showToast(`🔔 Reminder set!`);
 };
 
 function renderReminders(){
@@ -427,14 +571,14 @@ document.getElementById("gpsBtn").onclick=()=>{
   navigator.geolocation.getCurrentPosition(async pos=>{
     try{
       const{latitude:lat,longitude:lon}=pos.coords;
-      const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
-      const data=await res.json();
-      const num=data.address?.house_number||"";const road=data.address?.road||"";
-      const full=num?`${num} ${road}`:road;
+      const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+      const d=await r.json();
+      const n=d.address?.house_number||"",road=d.address?.road||"";
+      const full=n?`${n} ${road}`:road;
       document.getElementById("searchInput").value=full;doSearch(full);showToast(`📍 ${full}`);
     }catch{err.textContent="Couldn't read location. Try typing.";err.style.display="block"}
     btn.textContent="📍 Use my location";btn.classList.remove("loading");
-  },()=>{err.textContent="Location denied — please type your address.";err.style.display="block";btn.textContent="📍 Use my location";btn.classList.remove("loading")});
+  },()=>{err.textContent="Location denied — type your address.";err.style.display="block";btn.textContent="📍 Use my location";btn.classList.remove("loading")});
 };
 
 document.getElementById("shareBtn").onclick=()=>{
@@ -446,9 +590,9 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dip=e;if(!l
 document.getElementById("installBtn").onclick=()=>{if(dip){dip.prompt();dip.userChoice.then(()=>{dip=null;document.getElementById("installBanner").style.display="none"})}};
 document.getElementById("dismissInstall").onclick=()=>{document.getElementById("installBanner").style.display="none";localStorage.setItem("ps_id","1")};
 
-if("serviceWorker" in navigator){const sw=`const C="ps-v4";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"}))).catch(()=>{})}
+if("serviceWorker" in navigator){const sw=`const CA="ps-v5";self.addEventListener("install",e=>e.waitUntil(caches.open(CA).then(c=>c.addAll(["/"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"}))).catch(()=>{})}
 
-setInterval(()=>{now=new Date();if(results)renderResults()},30000);
+setInterval(()=>{now=new Date();if(res)renderResults()},30000);
 buildCityTabs();buildChips();renderReminders();
 if(new URLSearchParams(location.search).get("gps")==="true")setTimeout(()=>document.getElementById("gpsBtn").click(),500);
 </script>
