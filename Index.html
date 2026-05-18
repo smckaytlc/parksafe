@@ -4,459 +4,147 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>ParkSafe 🅿️</title>
-
-  <!-- PWA Meta -->
   <meta name="theme-color" content="#0f172a"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="ParkSafe"/>
-  <meta name="description" content="Instant street sweeping checker for Berkeley, Oakland & SF. Is it safe to park here right now?"/>
-
-  <!-- Open Graph (for sharing) -->
+  <meta name="description" content="Instant street sweeping & parking checker for Berkeley, Oakland, El Cerrito & SF."/>
   <meta property="og:title" content="ParkSafe 🅿️ — Is it safe to park here?"/>
-  <meta property="og:description" content="Instant street sweeping checker for Berkeley, Oakland & SF. Free, no account needed."/>
-  <meta property="og:type" content="website"/>
-
-  <!-- Manifest -->
+  <meta property="og:description" content="Street sweeping + permit zone checker. Free, no account needed."/>
   <link rel="manifest" href="manifest.json"/>
-
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --safe:#34C759;--warn:#FF9500;--danger:#FF3B30;
+      --dark:#0f172a;--muted:#94a3b8;--bg:#f1f5f9;--card:#fff;--indigo:#4f46e5;
+    }
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100dvh;overscroll-behavior:none}
 
-    :root {
-      --safe: #34C759;
-      --warn: #FF9500;
-      --danger: #FF3B30;
-      --dark: #0f172a;
-      --mid: #1e293b;
-      --muted: #94a3b8;
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --indigo: #4f46e5;
-    }
+    /* HEADER */
+    #header{background:var(--dark);padding:env(safe-area-inset-top,20px) 20px 28px;transition:background 0.5s ease}
+    .city-tabs{display:flex;gap:8px;margin-bottom:20px;padding-top:8px;flex-wrap:wrap}
+    .city-tab{padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,0.15);color:#fff;transition:all 0.2s}
+    .city-tab.active{background:#fff;color:var(--dark)}
+    .app-label{color:rgba(255,255,255,0.6);font-family:'Syne',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px}
+    .status-headline{color:#fff;font-family:'Syne',sans-serif;font-size:32px;font-weight:900;line-height:1.1;margin-bottom:22px;transition:all 0.3s}
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      min-height: 100vh;
-      min-height: 100dvh;
-      overscroll-behavior: none;
-    }
+    /* GPS */
+    #gpsBtn{width:100%;padding:14px;border-radius:16px;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.12);color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
+    #gpsBtn:active{transform:scale(0.98);opacity:0.85}
 
-    /* ── HEADER ── */
-    #header {
-      background: var(--dark);
-      padding: env(safe-area-inset-top, 20px) 20px 28px;
-      transition: background 0.5s ease;
-    }
+    /* SEARCH */
+    .search-wrap{position:relative}
+    #searchInput{width:100%;padding:14px 52px 14px 18px;border-radius:16px;border:none;font-size:16px;font-family:'DM Sans',sans-serif;background:rgba(255,255,255,0.95);outline:none;-webkit-appearance:none}
+    #searchBtn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:10px;border:none;background:var(--indigo);color:#fff;font-size:18px;cursor:pointer}
+    #suggestions{background:#fff;border-radius:12px;margin-top:6px;box-shadow:0 8px 24px rgba(0,0,0,0.15);overflow:hidden;display:none}
+    .suggestion-item{padding:12px 18px;cursor:pointer;font-size:15px;color:var(--dark);border-bottom:1px solid #f1f5f9;text-transform:capitalize}
+    .suggestion-item:active{background:#f8fafc}
 
-    .city-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      padding-top: 8px;
-    }
-    .city-tab {
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: none;
-      cursor: pointer;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      transition: all 0.2s;
-    }
-    .city-tab.active {
-      background: #fff;
-      color: var(--dark);
-    }
+    /* BODY */
+    #body{max-width:480px;margin:0 auto;padding:20px 20px 100px}
+    #quickLabel{font-size:11px;font-family:monospace;letter-spacing:2px;color:var(--muted);margin-bottom:8px}
+    #quickChips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+    .chip{padding:8px 14px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;color:#334155;font-weight:500;text-transform:capitalize;transition:all 0.15s}
+    .chip:active{background:#f8fafc;transform:scale(0.97)}
 
-    .app-label {
-      color: rgba(255,255,255,0.6);
-      font-family: 'Syne', sans-serif;
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-    .status-headline {
-      color: #fff;
-      font-family: 'Syne', sans-serif;
-      font-size: 34px;
-      font-weight: 900;
-      line-height: 1.1;
-      margin-bottom: 22px;
-      transition: all 0.3s;
-    }
+    /* EMPTY */
+    #emptyState{text-align:center;padding:28px 0;color:var(--muted)}
+    #emptyState .big-icon{font-size:52px;margin-bottom:12px}
+    #emptyState h2{font-family:'Syne',sans-serif;font-size:16px;color:#475569;margin-bottom:6px}
 
-    /* GPS button */
-    #gpsBtn {
-      width: 100%;
-      padding: 15px;
-      border-radius: 16px;
-      border: 1.5px solid rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.12);
-      color: #fff;
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 16px;
-      cursor: pointer;
-      margin-bottom: 12px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    #gpsBtn:active { transform: scale(0.98); opacity: 0.85; }
+    /* NOT FOUND */
+    #notFound{background:#fff;border-radius:20px;padding:28px;text-align:center;display:none}
 
-    /* Search */
-    .search-wrap { position: relative; }
-    #searchInput {
-      width: 100%;
-      padding: 15px 52px 15px 18px;
-      border-radius: 16px;
-      border: none;
-      font-size: 16px;
-      font-family: 'DM Sans', sans-serif;
-      background: rgba(255,255,255,0.95);
-      outline: none;
-      -webkit-appearance: none;
-    }
-    #searchBtn {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px; height: 40px;
-      border-radius: 10px;
-      border: none;
-      background: var(--indigo);
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-    }
+    /* RESULTS */
+    #results{display:none}
+    .result-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px}
+    .result-label{font-size:11px;font-family:monospace;letter-spacing:2px;color:var(--muted)}
+    .result-street{font-family:'Syne',sans-serif;font-size:21px;font-weight:900;color:var(--dark);text-transform:capitalize}
+    .result-time{font-size:12px;color:var(--muted);margin-top:2px}
+    #mapToggle{padding:8px 14px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;color:#475569;white-space:nowrap;transition:all 0.2s}
+    #mapToggle.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
 
-    /* Suggestions */
-    #suggestions {
-      background: #fff;
-      border-radius: 12px;
-      margin-top: 6px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-      overflow: hidden;
-      display: none;
-    }
-    .suggestion-item {
-      padding: 13px 18px;
-      cursor: pointer;
-      font-size: 15px;
-      color: var(--dark);
-      border-bottom: 1px solid #f1f5f9;
-      text-transform: capitalize;
-    }
-    .suggestion-item:last-child { border-bottom: none; }
-    .suggestion-item:active { background: #f8fafc; }
+    /* MAP */
+    #mapView{background:#fff;border-radius:20px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,0.07);display:none}
+    .map-visual{position:relative;height:110px}
+    .map-road{position:absolute;top:50%;left:0;right:0;height:26px;transform:translateY(-50%);background:#374151;border-radius:4px}
+    .map-dashes{position:absolute;top:50%;left:0;right:0;height:2px;transform:translateY(-50%);background:repeating-linear-gradient(90deg,#fbbf24 0,#fbbf24 18px,transparent 18px,transparent 36px)}
+    .map-block{position:absolute;width:23%;height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:monospace;font-weight:700}
+    .map-side-label{position:absolute;right:0;font-size:9px;color:#999;font-family:monospace}
 
-    /* ── BODY ── */
-    #body {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 20px 20px 120px;
-    }
+    /* STATUS CARDS */
+    .status-card{background:#fff;border-radius:20px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
+    .card-bar{height:6px}
+    .card-body{padding:16px 20px}
+    .card-inner{display:flex;justify-content:space-between;align-items:flex-start}
+    .card-side-label{font-size:11px;font-family:monospace;letter-spacing:1px;color:var(--muted);margin-bottom:4px;text-transform:uppercase}
+    .card-status{font-family:'Syne',sans-serif;font-size:19px;font-weight:900}
+    .card-detail{font-size:13px;color:#64748b;margin-top:4px}
+    .card-icon{font-size:30px;margin-left:12px}
+    .reminder-btn{margin-top:12px;width:100%;padding:10px;border-radius:12px;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--indigo);display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s}
+    .reminder-btn:active{background:#ede9fe}
 
-    /* Quick chips */
-    #quickLabel {
-      font-size: 11px;
-      font-family: monospace;
-      letter-spacing: 2px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-    #quickChips {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
-    .chip {
-      padding: 8px 14px;
-      border-radius: 20px;
-      border: 2px solid #e2e8f0;
-      background: #fff;
-      cursor: pointer;
-      font-size: 13px;
-      font-family: 'DM Sans', sans-serif;
-      color: #334155;
-      font-weight: 500;
-      text-transform: capitalize;
-      transition: all 0.15s;
-    }
-    .chip:active { background: #f8fafc; transform: scale(0.97); }
+    /* PERMIT CARD */
+    .permit-card{background:#fff;border-radius:20px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
+    .permit-bar{height:6px;background:linear-gradient(90deg,#6366f1,#8b5cf6)}
+    .permit-body{padding:16px 20px}
+    .permit-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:900;color:var(--dark);margin-bottom:10px}
+    .permit-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f1f5f9}
+    .permit-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+    .permit-badge{padding:4px 10px;border-radius:20px;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;white-space:nowrap;flex-shrink:0}
+    .permit-text{font-size:13px;color:#475569;line-height:1.5}
+    .permit-highlight{font-weight:600;color:var(--dark)}
 
-    /* Empty state */
-    #emptyState {
-      text-align: center;
-      padding: 32px 0;
-      color: var(--muted);
-    }
-    #emptyState .big-icon { font-size: 56px; margin-bottom: 12px; }
-    #emptyState h2 { font-family: 'Syne', sans-serif; font-size: 17px; color: #475569; margin-bottom: 6px; }
-    #emptyState p { font-size: 13px; }
+    /* EL CERRITO NOTE */
+    .ec-note{background:#fefce8;border:2px solid #fbbf24;border-radius:16px;padding:14px 18px;margin-bottom:12px;font-size:13px;color:#92400e}
 
-    /* Not found */
-    #notFound {
-      background: #fff;
-      border-radius: 20px;
-      padding: 28px;
-      text-align: center;
-      display: none;
-    }
+    /* HOLIDAY */
+    #holidayBanner{background:#dcfce7;border-radius:16px;padding:14px 18px;border:2px solid var(--safe);color:#166534;font-weight:700;font-size:14px;margin-top:4px;display:none}
 
-    /* Results */
-    #results { display: none; }
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 16px;
-    }
-    .result-label { font-size: 11px; font-family: monospace; letter-spacing: 2px; color: var(--muted); }
-    .result-street { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 900; color: var(--dark); text-transform: capitalize; }
-    .result-time { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    /* REMINDERS */
+    #remindersSection{margin-top:24px;display:none}
+    .reminder-item{background:#fff;border-radius:16px;padding:14px 18px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+    .reminder-title{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#1e293b;text-transform:capitalize}
+    .reminder-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .reminder-del{background:none;border:none;cursor:pointer;color:#cbd5e1;font-size:20px;padding:4px}
 
-    #mapToggle {
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 2px solid #e2e8f0;
-      background: #fff;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-      color: #475569;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    #mapToggle.active { background: var(--indigo); color: #fff; border-color: var(--indigo); }
+    /* INSTALL / SHARE */
+    #installBanner{position:fixed;bottom:20px;left:16px;right:16px;background:var(--dark);color:#fff;border-radius:20px;padding:16px 20px;display:none;align-items:center;justify-content:space-between;box-shadow:0 8px 32px rgba(0,0,0,0.3);z-index:100;gap:12px}
+    #installBanner p{font-size:14px;font-weight:600;flex:1}
+    #installBanner small{font-size:12px;opacity:0.7;display:block;margin-top:2px}
+    #installBtn{padding:10px 18px;border-radius:12px;border:none;background:var(--indigo);color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}
+    #dismissInstall{background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:20px}
+    #shareBanner{background:linear-gradient(135deg,var(--indigo),#7c3aed);border-radius:20px;padding:20px;margin-top:20px;color:#fff;text-align:center}
+    #shareBanner h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:900;margin-bottom:6px}
+    #shareBanner p{font-size:13px;opacity:0.85;margin-bottom:14px}
+    #shareBtn{padding:11px 24px;border-radius:12px;border:none;background:#fff;color:var(--indigo);font-family:'Syne',sans-serif;font-weight:800;font-size:14px;cursor:pointer}
 
-    /* Map */
-    #mapView {
-      background: #fff;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-      display: none;
-    }
-    .map-label { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 2px; color: #888; margin-bottom: 14px; text-transform: uppercase; }
-    .map-visual { position: relative; height: 110px; }
-    .map-road { position: absolute; top: 50%; left: 0; right: 0; height: 26px; transform: translateY(-50%); background: #374151; border-radius: 4px; }
-    .map-dashes { position: absolute; top: 50%; left: 0; right: 0; height: 2px; transform: translateY(-50%); background: repeating-linear-gradient(90deg, #fbbf24 0, #fbbf24 18px, transparent 18px, transparent 36px); }
-    .map-block { position: absolute; width: 23%; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-family: monospace; font-weight: 700; }
-    .map-side-label { position: absolute; right: 0; font-size: 9px; color: #999; font-family: monospace; }
+    /* MODAL */
+    #modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+    #modal.show{display:flex}
+    .modal-sheet{background:#fff;border-radius:24px 24px 0 0;padding:28px 24px calc(28px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px}
+    .modal-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:900;color:var(--dark);margin-bottom:6px}
+    .modal-sub{color:#64748b;font-size:14px;margin-bottom:20px}
+    .time-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+    .time-chip{padding:8px 16px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;color:#334155;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.15s}
+    .time-chip.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+    .modal-actions{display:flex;gap:10px}
+    .btn-cancel{flex:1;padding:13px;border-radius:14px;border:2px solid #e2e8f0;background:#fff;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;font-size:14px}
+    .btn-set{flex:2;padding:13px;border-radius:14px;border:none;background:var(--indigo);color:#fff;font-family:'Syne',sans-serif;font-weight:800;cursor:pointer;font-size:14px}
 
-    /* Status cards */
-    .status-card {
-      background: #fff;
-      border-radius: 20px;
-      overflow: hidden;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    }
-    .card-bar { height: 6px; }
-    .card-body { padding: 16px 20px; }
-    .card-inner { display: flex; justify-content: space-between; align-items: flex-start; }
-    .card-side-label { font-size: 12px; font-family: monospace; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
-    .card-status { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 900; }
-    .card-detail { font-size: 13px; color: #64748b; margin-top: 4px; }
-    .card-icon { font-size: 32px; margin-left: 12px; }
-    .reminder-btn {
-      margin-top: 12px;
-      width: 100%;
-      padding: 10px;
-      border-radius: 12px;
-      border: 2px solid #e2e8f0;
-      background: #f8fafc;
-      cursor: pointer;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 13px;
-      color: var(--indigo);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.15s;
-    }
-    .reminder-btn:active { background: #ede9fe; }
-
-    /* Holiday */
-    #holidayBanner {
-      background: #dcfce7;
-      border-radius: 16px;
-      padding: 14px 18px;
-      border: 2px solid var(--safe);
-      color: #166534;
-      font-weight: 700;
-      font-size: 14px;
-      margin-top: 4px;
-      display: none;
-    }
-
-    /* Reminders */
-    #remindersSection { margin-top: 24px; display: none; }
-    .reminder-item {
-      background: #fff;
-      border-radius: 16px;
-      padding: 14px 18px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    .reminder-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: #1e293b; text-transform: capitalize; }
-    .reminder-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .reminder-del { background: none; border: none; cursor: pointer; color: #cbd5e1; font-size: 20px; padding: 4px; }
-
-    /* Install banner */
-    #installBanner {
-      position: fixed;
-      bottom: 20px;
-      left: 16px; right: 16px;
-      background: var(--dark);
-      color: #fff;
-      border-radius: 20px;
-      padding: 16px 20px;
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      z-index: 100;
-      gap: 12px;
-    }
-    #installBanner p { font-size: 14px; font-weight: 600; flex: 1; }
-    #installBanner small { font-size: 12px; opacity: 0.7; display: block; margin-top: 2px; }
-    #installBtn {
-      padding: 10px 18px;
-      border-radius: 12px;
-      border: none;
-      background: var(--indigo);
-      color: #fff;
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 14px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    #dismissInstall { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 20px; }
-
-    /* Share banner */
-    #shareBanner {
-      background: linear-gradient(135deg, var(--indigo), #7c3aed);
-      border-radius: 20px;
-      padding: 20px;
-      margin-top: 20px;
-      color: #fff;
-      text-align: center;
-    }
-    #shareBanner h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 900; margin-bottom: 6px; }
-    #shareBanner p { font-size: 13px; opacity: 0.85; margin-bottom: 14px; }
-    #shareBtn {
-      padding: 11px 24px;
-      border-radius: 12px;
-      border: none;
-      background: #fff;
-      color: var(--indigo);
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    /* Modal */
-    #modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 200;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 0;
-    }
-    #modal.show { display: flex; }
-    .modal-sheet {
-      background: #fff;
-      border-radius: 24px 24px 0 0;
-      padding: 28px 24px calc(28px + env(safe-area-inset-bottom, 0px));
-      width: 100%;
-      max-width: 480px;
-    }
-    .modal-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 900; color: var(--dark); margin-bottom: 6px; }
-    .modal-sub { color: #64748b; font-size: 14px; margin-bottom: 20px; }
-    .time-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-    .time-chip {
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 2px solid #e2e8f0;
-      background: #fff;
-      color: #334155;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .time-chip.active { background: var(--indigo); color: #fff; border-color: var(--indigo); }
-    .modal-actions { display: flex; gap: 10px; }
-    .btn-cancel {
-      flex: 1; padding: 14px; border-radius: 14px; border: 2px solid #e2e8f0;
-      background: #fff; font-family: 'Syne', sans-serif; font-weight: 700; cursor: pointer; font-size: 15px;
-    }
-    .btn-set {
-      flex: 2; padding: 14px; border-radius: 14px; border: none;
-      background: var(--indigo); color: #fff; font-family: 'Syne', sans-serif; font-weight: 800; cursor: pointer; font-size: 15px;
-    }
-
-    /* Toast */
-    #toast {
-      position: fixed;
-      top: calc(env(safe-area-inset-top, 16px) + 16px);
-      left: 50%; transform: translateX(-50%) translateY(-80px);
-      background: var(--dark);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 999;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-      white-space: nowrap;
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-
-    /* Footer */
-    #footer { text-align: center; margin-top: 24px; font-size: 11px; color: #cbd5e1; font-family: monospace; letter-spacing: 1px; }
-
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
-    .loading { animation: pulse 1.2s infinite; }
+    /* TOAST */
+    #toast{position:fixed;top:calc(env(safe-area-inset-top,16px) + 16px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--dark);color:#fff;padding:12px 24px;border-radius:40px;font-size:14px;font-weight:600;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.3);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap}
+    #toast.show{transform:translateX(-50%) translateY(0)}
+    #footer{text-align:center;margin-top:24px;font-size:11px;color:#cbd5e1;font-family:monospace;letter-spacing:1px}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+    .loading{animation:pulse 1.2s infinite}
   </style>
 </head>
 <body>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <!-- MODAL -->
@@ -477,12 +165,9 @@
   </div>
 </div>
 
-<!-- INSTALL BANNER -->
+<!-- INSTALL -->
 <div id="installBanner">
-  <div style="flex:1">
-    <p>📲 Add ParkSafe to your home screen</p>
-    <small>Works offline · No app store needed</small>
-  </div>
+  <div style="flex:1"><p>📲 Add ParkSafe to your home screen</p><small>Works offline · No app store needed</small></div>
   <button id="installBtn">Install</button>
   <button id="dismissInstall">✕</button>
 </div>
@@ -491,14 +176,12 @@
 <div id="header">
   <div style="max-width:480px;margin:0 auto">
     <div class="city-tabs" id="cityTabs"></div>
-    <div class="app-label">ParkSafe</div>
+    <div class="app-label">ParkSafe · East Bay</div>
     <div class="status-headline" id="statusHeadline">🅿️ Is it safe to park here?</div>
-
     <button id="gpsBtn">📍 Use my location</button>
     <div id="gpsError" style="color:rgba(255,180,180,1);font-size:12px;text-align:center;margin-bottom:8px;display:none"></div>
-
     <div class="search-wrap">
-      <input id="searchInput" type="text" placeholder="Or type a street name..." autocomplete="off" autocorrect="off" spellcheck="false"/>
+      <input id="searchInput" type="text" placeholder="Type a street name..." autocomplete="off" autocorrect="off" spellcheck="false"/>
       <button id="searchBtn">→</button>
     </div>
     <div id="suggestions"></div>
@@ -507,26 +190,22 @@
 
 <!-- BODY -->
 <div id="body">
-
-  <!-- Quick picks -->
   <div id="quickSection">
     <div id="quickLabel">QUICK SEARCH</div>
     <div id="quickChips"></div>
     <div id="emptyState">
       <div class="big-icon">🅿️</div>
       <h2>Tap your location or search a street</h2>
-      <p>Instant safe/unsafe for both sides of the street</p>
+      <p>Covers Berkeley · Oakland · El Cerrito · SF</p>
     </div>
   </div>
 
-  <!-- Not found -->
   <div id="notFound">
     <div style="font-size:40px;margin-bottom:12px">🤷</div>
     <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#475569">Street not in our database yet</div>
-    <div style="font-size:13px;color:#94a3b8;margin-top:6px">Try another or switch cities above</div>
+    <div style="font-size:13px;color:#94a3b8;margin-top:6px">Try another street or switch cities above</div>
   </div>
 
-  <!-- Results -->
   <div id="results">
     <div class="result-header">
       <div>
@@ -538,176 +217,146 @@
     </div>
 
     <div id="mapView">
-      <div class="map-label" id="mapLabel"></div>
+      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;color:#888;margin-bottom:14px;text-transform:uppercase" id="mapLabel"></div>
       <div class="map-visual" id="mapVisual">
         <div class="map-road"><div class="map-dashes"></div></div>
       </div>
-      <div style="font-size:11px;color:#aaa;margin-top:10px;font-family:'DM Sans',sans-serif">🟢 Safe &nbsp;·&nbsp; 🟡 Warning &nbsp;·&nbsp; 🔴 No parking</div>
+      <div style="font-size:11px;color:#aaa;margin-top:10px">🟢 Safe &nbsp;·&nbsp; 🟡 Warning &nbsp;·&nbsp; 🔴 No parking</div>
     </div>
 
     <div id="statusCards"></div>
+    <div id="permitCard"></div>
+    <div id="ecNote" style="display:none" class="ec-note">
+      ⚠️ <strong>El Cerrito note:</strong> Street sweeping is managed by East Bay Sanitary (EBS). If your scheduled day falls on a holiday, sweeping moves to the same day the following week. Call EBS on <strong>510-237-4321</strong> for specific block queries.
+    </div>
     <div id="holidayBanner">🎉 City holiday today — street sweeping suspended!</div>
   </div>
 
-  <!-- Reminders section -->
   <div id="remindersSection">
     <div style="font-size:11px;font-family:monospace;letter-spacing:2px;color:#94a3b8;margin-bottom:10px">YOUR REMINDERS</div>
     <div id="remindersList"></div>
   </div>
 
-  <!-- Share banner -->
   <div id="shareBanner">
-    <h3>Know a busy mum? Share ParkSafe 🚗</h3>
-    <p>Free, no account needed. Just open and go.</p>
-    <button id="shareBtn">📤 Share this app</button>
+    <h3>Know someone who needs this? 🚗</h3>
+    <p>Free, no account needed. Works on any phone.</p>
+    <button id="shareBtn">📤 Share ParkSafe</button>
   </div>
 
-  <div id="footer">DATA: CITY OPEN DATA PORTALS · ALWAYS CHECK POSTED SIGNS</div>
+  <div id="footer">BERKELEY · OAKLAND · EL CERRITO · SF · ALWAYS CHECK POSTED SIGNS</div>
 </div>
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
+// rppZone: the permit zone letter for this street
+// rppLimit: "Mon-Fri 8am-7pm" style string
+// rppSat: true if also enforced Saturdays
 const STREET_DATA = {
   berkeley: {
-    "university ave":    [{side:"North",day:"monday",week:"2nd",startH:8,startM:0,endH:10,endM:0},
-                          {side:"South",day:"tuesday",week:"2nd",startH:8,startM:0,endH:10,endM:0}],
-    "telegraph ave":     [{side:"East",day:"wednesday",week:"1st",startH:7,startM:0,endH:9,endM:0},
-                          {side:"West",day:"thursday",week:"1st",startH:7,startM:0,endH:9,endM:0}],
-    "shattuck ave":      [{side:"East",day:"friday",week:"3rd",startH:9,startM:0,endH:11,endM:0},
-                          {side:"West",day:"friday",week:"3rd",startH:11,startM:0,endH:13,endM:0}],
-    "berryman st":       [{side:"North",day:"thursday",week:"3rd",startH:12,startM:30,endH:15,endM:30},
-                          {side:"South",day:"thursday",week:"3rd",startH:9,startM:0,endH:11,endM:0}],
-    "college ave":       [{side:"East",day:"monday",week:"1st",startH:8,startM:0,endH:10,endM:0},
-                          {side:"West",day:"tuesday",week:"3rd",startH:8,startM:0,endH:10,endM:0}],
-    "ashby ave":         [{side:"North",day:"wednesday",week:"2nd",startH:10,startM:0,endH:12,endM:0},
-                          {side:"South",day:"thursday",week:"4th",startH:10,startM:0,endH:12,endM:0}],
-    "cedar st":          [{side:"North",day:"tuesday",week:"1st",startH:9,startM:0,endH:11,endM:0},
-                          {side:"South",day:"tuesday",week:"3rd",startH:9,startM:0,endH:11,endM:0}],
-    "milvia st":         [{side:"East",day:"friday",week:"2nd",startH:8,startM:0,endH:10,endM:0},
-                          {side:"West",day:"friday",week:"4th",startH:8,startM:0,endH:10,endM:0}],
-    "sacramento st":     [{side:"East",day:"monday",week:"3rd",startH:11,startM:0,endH:13,endM:0},
-                          {side:"West",day:"wednesday",week:"1st",startH:11,startM:0,endH:13,endM:0}],
-    "california st":     [{side:"North",day:"thursday",week:"2nd",startH:8,startM:0,endH:10,endM:0},
-                          {side:"South",day:"thursday",week:"4th",startH:8,startM:0,endH:10,endM:0}],
+    "university ave":     { restrictions:[{side:"North",day:"monday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"tuesday",week:"2nd",startH:8,startM:0,endH:10,endM:0}], rppZone:null },
+    "telegraph ave":      { restrictions:[{side:"East",day:"wednesday",week:"1st",startH:7,startM:0,endH:9,endM:0},{side:"West",day:"thursday",week:"1st",startH:7,startM:0,endH:9,endM:0}], rppZone:null },
+    "shattuck ave":       { restrictions:[{side:"East",day:"friday",week:"3rd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"friday",week:"3rd",startH:11,startM:0,endH:13,endM:0}], rppZone:null },
+    "berryman st":        { restrictions:[{side:"North",day:"thursday",week:"3rd",startH:12,startM:30,endH:15,endM:30},{side:"South",day:"thursday",week:"3rd",startH:9,startM:0,endH:11,endM:0}], rppZone:"E", rppSat:true },
+    "college ave":        { restrictions:[{side:"East",day:"monday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"tuesday",week:"3rd",startH:8,startM:0,endH:10,endM:0}], rppZone:"C" },
+    "ashby ave":          { restrictions:[{side:"North",day:"wednesday",week:"2nd",startH:10,startM:0,endH:12,endM:0},{side:"South",day:"thursday",week:"4th",startH:10,startM:0,endH:12,endM:0}], rppZone:"C" },
+    "cedar st":           { restrictions:[{side:"North",day:"tuesday",week:"1st",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"tuesday",week:"3rd",startH:9,startM:0,endH:11,endM:0}], rppZone:"E" },
+    "milvia st":          { restrictions:[{side:"East",day:"friday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"friday",week:"4th",startH:8,startM:0,endH:10,endM:0}], rppZone:null },
+    "sacramento st":      { restrictions:[{side:"East",day:"monday",week:"3rd",startH:11,startM:0,endH:13,endM:0},{side:"West",day:"wednesday",week:"1st",startH:11,startM:0,endH:13,endM:0}], rppZone:"C" },
+    "california st":      { restrictions:[{side:"North",day:"thursday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"thursday",week:"4th",startH:8,startM:0,endH:10,endM:0}], rppZone:"E" },
+    "channing way":       { restrictions:[{side:"North",day:"wednesday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"friday",week:"4th",startH:9,startM:0,endH:11,endM:0}], rppZone:"C" },
+    "dwight way":         { restrictions:[{side:"North",day:"tuesday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"thursday",week:"3rd",startH:8,startM:0,endH:10,endM:0}], rppZone:"C" },
   },
   oakland: {
-    "broadway":          [{side:"East",day:"tuesday",week:"1st",startH:7,startM:0,endH:9,endM:0},
-                          {side:"West",day:"wednesday",week:"2nd",startH:7,startM:0,endH:9,endM:0}],
-    "telegraph ave":     [{side:"East",day:"thursday",week:"1st",startH:8,startM:0,endH:10,endM:0},
-                          {side:"West",day:"friday",week:"2nd",startH:8,startM:0,endH:10,endM:0}],
-    "grand ave":         [{side:"North",day:"monday",week:"2nd",startH:9,startM:0,endH:11,endM:0},
-                          {side:"South",day:"tuesday",week:"4th",startH:9,startM:0,endH:11,endM:0}],
-    "piedmont ave":      [{side:"East",day:"wednesday",week:"3rd",startH:10,startM:0,endH:12,endM:0},
-                          {side:"West",day:"friday",week:"1st",startH:10,startM:0,endH:12,endM:0}],
-    "lakeshore ave":     [{side:"North",day:"thursday",week:"2nd",startH:8,startM:0,endH:10,endM:0},
-                          {side:"South",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}],
+    "broadway":           { restrictions:[{side:"East",day:"tuesday",week:"1st",startH:7,startM:0,endH:9,endM:0},{side:"West",day:"wednesday",week:"2nd",startH:7,startM:0,endH:9,endM:0}], rppZone:null },
+    "telegraph ave":      { restrictions:[{side:"East",day:"thursday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"friday",week:"2nd",startH:8,startM:0,endH:10,endM:0}], rppZone:null },
+    "grand ave":          { restrictions:[{side:"North",day:"monday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"tuesday",week:"4th",startH:9,startM:0,endH:11,endM:0}], rppZone:null },
+    "piedmont ave":       { restrictions:[{side:"East",day:"wednesday",week:"3rd",startH:10,startM:0,endH:12,endM:0},{side:"West",day:"friday",week:"1st",startH:10,startM:0,endH:12,endM:0}], rppZone:null },
+    "lakeshore ave":      { restrictions:[{side:"North",day:"thursday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}], rppZone:null },
+    "macarthur blvd":     { restrictions:[{side:"North",day:"tuesday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"wednesday",week:"3rd",startH:8,startM:0,endH:10,endM:0}], rppZone:null },
+    "fruitvale ave":      { restrictions:[{side:"East",day:"monday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"thursday",week:"4th",startH:9,startM:0,endH:11,endM:0}], rppZone:null },
+    "international blvd": { restrictions:[{side:"North",day:"wednesday",week:"1st",startH:7,startM:0,endH:9,endM:0},{side:"South",day:"friday",week:"3rd",startH:7,startM:0,endH:9,endM:0}], rppZone:null },
+    "college ave":        { restrictions:[{side:"East",day:"tuesday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"thursday",week:"4th",startH:9,startM:0,endH:11,endM:0}], rppZone:null },
+    "broadway terrace":   { restrictions:[{side:"East",day:"monday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"wednesday",week:"3rd",startH:8,startM:0,endH:10,endM:0}], rppZone:null },
+  },
+  "el cerrito": {
+    "san pablo ave":      { restrictions:[{side:"East",day:"monday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}], rppZone:null, ecCity:true },
+    "carlson blvd":       { restrictions:[{side:"East",day:"tuesday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"tuesday",week:"4th",startH:9,startM:0,endH:11,endM:0}], rppZone:null, ecCity:true },
+    "el cerrito plaza":   { restrictions:[{side:"North",day:"wednesday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"South",day:"wednesday",week:"3rd",startH:8,startM:0,endH:10,endM:0}], rppZone:null, ecCity:true },
+    "fairmount ave":      { restrictions:[{side:"North",day:"thursday",week:"2nd",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"thursday",week:"4th",startH:9,startM:0,endH:11,endM:0}], rppZone:null, ecCity:true },
+    "madera ave":         { restrictions:[{side:"North",day:"friday",week:"1st",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"friday",week:"3rd",startH:9,startM:0,endH:11,endM:0}], rppZone:null, ecCity:true },
+    "key blvd":           { restrictions:[{side:"East",day:"monday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"monday",week:"4th",startH:8,startM:0,endH:10,endM:0}], rppZone:null, ecCity:true },
+    "richmond st":        { restrictions:[{side:"North",day:"tuesday",week:"1st",startH:9,startM:0,endH:11,endM:0},{side:"South",day:"tuesday",week:"3rd",startH:9,startM:0,endH:11,endM:0}], rppZone:null, ecCity:true },
+    "highland ave":       { restrictions:[{side:"East",day:"wednesday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"wednesday",week:"4th",startH:8,startM:0,endH:10,endM:0}], rppZone:null, ecCity:true },
   },
   "san francisco": {
-    "market st":         [{side:"North",day:"monday",week:"1st",startH:7,startM:0,endH:9,endM:0},
-                          {side:"South",day:"wednesday",week:"3rd",startH:7,startM:0,endH:9,endM:0}],
-    "valencia st":       [{side:"East",day:"tuesday",week:"2nd",startH:8,startM:0,endH:10,endM:0},
-                          {side:"West",day:"thursday",week:"4th",startH:8,startM:0,endH:10,endM:0}],
-    "mission st":        [{side:"East",day:"monday",week:"3rd",startH:9,startM:0,endH:11,endM:0},
-                          {side:"West",day:"friday",week:"1st",startH:9,startM:0,endH:11,endM:0}],
-    "haight st":         [{side:"North",day:"wednesday",week:"2nd",startH:10,startM:0,endH:12,endM:0},
-                          {side:"South",day:"tuesday",week:"4th",startH:10,startM:0,endH:12,endM:0}],
-    "divisadero st":     [{side:"East",day:"thursday",week:"1st",startH:8,startM:0,endH:10,endM:0},
-                          {side:"West",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}],
+    "market st":          { restrictions:[{side:"North",day:"monday",week:"1st",startH:7,startM:0,endH:9,endM:0},{side:"South",day:"wednesday",week:"3rd",startH:7,startM:0,endH:9,endM:0}], rppZone:null },
+    "valencia st":        { restrictions:[{side:"East",day:"tuesday",week:"2nd",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"thursday",week:"4th",startH:8,startM:0,endH:10,endM:0}], rppZone:null },
+    "mission st":         { restrictions:[{side:"East",day:"monday",week:"3rd",startH:9,startM:0,endH:11,endM:0},{side:"West",day:"friday",week:"1st",startH:9,startM:0,endH:11,endM:0}], rppZone:null },
+    "haight st":          { restrictions:[{side:"North",day:"wednesday",week:"2nd",startH:10,startM:0,endH:12,endM:0},{side:"South",day:"tuesday",week:"4th",startH:10,startM:0,endH:12,endM:0}], rppZone:null },
+    "divisadero st":      { restrictions:[{side:"East",day:"thursday",week:"1st",startH:8,startM:0,endH:10,endM:0},{side:"West",day:"monday",week:"3rd",startH:8,startM:0,endH:10,endM:0}], rppZone:null },
   }
 };
 
-const HOLIDAYS = ["2026-01-01","2026-01-19","2026-02-16","2026-05-25",
-                  "2026-07-03","2026-09-07","2026-11-11","2026-11-26","2026-12-25"];
+// RPP zone info
+const RPP_INFO = {
+  "E": { label:"Zone E", hours:"Mon–Fri 8am–7pm", sat:true,  color:"#7c3aed", text:"#fff" },
+  "C": { label:"Zone C", hours:"Mon–Fri 8am–7pm", sat:false, color:"#0369a1", text:"#fff" },
+  "A": { label:"Zone A", hours:"Mon–Fri 8am–6pm", sat:false, color:"#065f46", text:"#fff" },
+  "B": { label:"Zone B", hours:"Mon–Fri 8am–7pm", sat:false, color:"#92400e", text:"#fff" },
+};
+
+const HOLIDAYS = ["2026-01-01","2026-01-19","2026-02-16","2026-05-25","2026-07-03","2026-09-07","2026-11-11","2026-11-26","2026-12-25"];
 const DAYS = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
 const WEEKS = ["","1st","2nd","3rd","4th","5th"];
-const COLORS = { SAFE:"#34C759", WARN:"#FF9500", DANGER:"#FF3B30" };
-const ICONS  = { SAFE:"✅", WARN:"⏰", DANGER:"🚨" };
+const COLORS = {SAFE:"#34C759",WARN:"#FF9500",DANGER:"#FF3B30"};
+const ICONS  = {SAFE:"✅",WARN:"⏰",DANGER:"🚨"};
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
-let currentCity = "berkeley";
-let currentResults = null;
-let now = new Date();
-let selectedMins = 30;
-let modalRestriction = null;
-let reminders = JSON.parse(localStorage.getItem("ps_reminders") || "[]");
-let mapOpen = false;
-let deferredInstallPrompt = null;
+let currentCity="berkeley", currentResults=null, now=new Date();
+let selectedMins=30, modalRestriction=null, mapOpen=false;
+let reminders=JSON.parse(localStorage.getItem("ps_reminders")||"[]");
+let deferredInstallPrompt=null;
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-const nthWeek = d => Math.ceil(new Date(d).getDate()/7);
-const fmt12 = (h,m) => {
-  const ap = h<12?"AM":"PM"; const hh = h===0?12:h>12?h-12:h;
-  return `${hh}:${String(m).padStart(2,"0")} ${ap}`;
-};
-const todayStr = d => d.toISOString().slice(0,10);
+const nthWeek=d=>Math.ceil(new Date(d).getDate()/7);
+const fmt12=(h,m)=>{const ap=h<12?"AM":"PM";const hh=h===0?12:h>12?h-12:h;return `${hh}:${String(m).padStart(2,"0")} ${ap}`};
+const todayStr=d=>d.toISOString().slice(0,10);
 
-function getStatus(r, n) {
-  const isHol = HOLIDAYS.includes(todayStr(n));
-  const matchDay = r.day === DAYS[n.getDay()];
-  const matchWeek = r.week === WEEKS[nthWeek(n)];
-  const isDay = matchDay && matchWeek && !isHol;
-  const cur = n.getHours()*60+n.getMinutes();
-  const st = r.startH*60+r.startM; const en = r.endH*60+r.endM;
-  if (isDay) {
-    if (cur>=st&&cur<en) return {code:"DANGER",minsLeft:en-cur};
-    if (cur<st) return {code:"WARN",minsTil:st-cur,startLabel:fmt12(r.startH,r.startM)};
-    return {code:"SAFE",past:true};
+function getStatus(r,n){
+  const isHol=HOLIDAYS.includes(todayStr(n));
+  const isDay=r.day===DAYS[n.getDay()]&&r.week===WEEKS[nthWeek(n)]&&!isHol;
+  const cur=n.getHours()*60+n.getMinutes();
+  const st=r.startH*60+r.startM,en=r.endH*60+r.endM;
+  if(isDay){
+    if(cur>=st&&cur<en)return{code:"DANGER",minsLeft:en-cur};
+    if(cur<st)return{code:"WARN",minsTil:st-cur,startLabel:fmt12(r.startH,r.startM)};
+    return{code:"SAFE",past:true};
   }
-  let d=new Date(n); d.setDate(d.getDate()+1);
-  for (let i=0;i<35;i++) {
-    if (d.getDay()===DAYS.indexOf(r.day)&&nthWeek(d)===WEEKS.indexOf(r.week)&&!HOLIDAYS.includes(todayStr(d)))
-      return {code:"SAFE",nextDate:new Date(d)};
+  let d=new Date(n);d.setDate(d.getDate()+1);
+  for(let i=0;i<35;i++){
+    if(d.getDay()===DAYS.indexOf(r.day)&&nthWeek(d)===WEEKS.indexOf(r.week)&&!HOLIDAYS.includes(todayStr(d)))
+      return{code:"SAFE",nextDate:new Date(d)};
     d.setDate(d.getDate()+1);
   }
-  return {code:"SAFE"};
+  return{code:"SAFE"};
+}
+const fmtDate=d=>d?d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"";
+const overallCode=rs=>rs.reduce((acc,r)=>{const s=getStatus(r,now);if(s.code==="DANGER")return"DANGER";if(s.code==="WARN"&&acc!=="DANGER")return"WARN";return acc},"SAFE");
+
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000)}
+
+function buildCityTabs(){
+  const el=document.getElementById("cityTabs");
+  el.innerHTML=Object.keys(STREET_DATA).map(c=>`<button class="city-tab${c===currentCity?" active":""}" data-city="${c}">${c==="san francisco"?"SF":c==="el cerrito"?"El Cerrito":c.charAt(0).toUpperCase()+c.slice(1)}</button>`).join("");
+  el.querySelectorAll(".city-tab").forEach(btn=>{btn.onclick=()=>{currentCity=btn.dataset.city;resetAll();buildCityTabs();buildQuickChips()}});
 }
 
-function fmtDate(d) {
-  if (!d) return "";
-  return d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+function buildQuickChips(){
+  const el=document.getElementById("quickChips");
+  el.innerHTML=Object.keys(STREET_DATA[currentCity]).slice(0,5).map(s=>`<button class="chip" data-street="${s}">${s}</button>`).join("");
+  el.querySelectorAll(".chip").forEach(btn=>{btn.onclick=()=>{document.getElementById("searchInput").value=btn.dataset.street;doSearch(btn.dataset.street)}});
 }
 
-function overallCode(restrictions) {
-  return restrictions.reduce((acc,r)=>{
-    const s=getStatus(r,now);
-    if(s.code==="DANGER") return "DANGER";
-    if(s.code==="WARN"&&acc!=="DANGER") return "WARN";
-    return acc;
-  },"SAFE");
-}
-
-// ── TOAST ─────────────────────────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),3000);
-}
-
-// ── CITY TABS ─────────────────────────────────────────────────────────────────
-function buildCityTabs() {
-  const el = document.getElementById("cityTabs");
-  el.innerHTML = Object.keys(STREET_DATA).map(c=>`
-    <button class="city-tab${c===currentCity?" active":""}" data-city="${c}">
-      ${c==="san francisco"?"SF":c.charAt(0).toUpperCase()+c.slice(1)}
-    </button>`).join("");
-  el.querySelectorAll(".city-tab").forEach(btn=>{
-    btn.onclick = ()=>{ currentCity=btn.dataset.city; resetAll(); buildCityTabs(); buildQuickChips(); };
-  });
-}
-
-// ── QUICK CHIPS ───────────────────────────────────────────────────────────────
-function buildQuickChips() {
-  const el = document.getElementById("quickChips");
-  el.innerHTML = Object.keys(STREET_DATA[currentCity]).slice(0,5)
-    .map(s=>`<button class="chip" data-street="${s}">${s}</button>`).join("");
-  el.querySelectorAll(".chip").forEach(btn=>{
-    btn.onclick = ()=>{ document.getElementById("searchInput").value=btn.dataset.street; doSearch(btn.dataset.street); };
-  });
-}
-
-// ── RESET ─────────────────────────────────────────────────────────────────────
-function resetAll() {
-  currentResults=null; mapOpen=false;
+function resetAll(){
+  currentResults=null;mapOpen=false;
   document.getElementById("quickSection").style.display="block";
   document.getElementById("notFound").style.display="none";
   document.getElementById("results").style.display="none";
@@ -720,17 +369,16 @@ function resetAll() {
   document.getElementById("mapToggle").classList.remove("active");
 }
 
-// ── SEARCH ────────────────────────────────────────────────────────────────────
-function doSearch(streetName) {
-  const data = STREET_DATA[currentCity];
-  const key = streetName.toLowerCase().trim();
-  const match = Object.entries(data).find(([k])=>k.includes(key)||key.includes(k));
+function doSearch(streetName){
+  const data=STREET_DATA[currentCity];
+  const key=streetName.toLowerCase().trim();
+  const match=Object.entries(data).find(([k])=>k.includes(key)||key.includes(k));
   document.getElementById("suggestions").style.display="none";
   document.getElementById("suggestions").innerHTML="";
-  if (match) {
-    currentResults={street:match[0],restrictions:match[1]};
+  if(match){
+    currentResults={street:match[0],...match[1]};
     renderResults();
-  } else {
+  }else{
     currentResults=null;
     document.getElementById("quickSection").style.display="none";
     document.getElementById("notFound").style.display="block";
@@ -740,239 +388,178 @@ function doSearch(streetName) {
   }
 }
 
-// ── RENDER RESULTS ────────────────────────────────────────────────────────────
-function renderResults() {
-  const {street,restrictions} = currentResults;
-  const code = overallCode(restrictions);
-  const bg = COLORS[code];
-
-  document.getElementById("header").style.background = bg;
-  document.getElementById("statusHeadline").textContent =
-    code==="DANGER"?"🚨 Move your car NOW!":
-    code==="WARN"?"⏰ Restriction coming up":
-    "✅ Safe to park!";
-
+function renderResults(){
+  const{street,restrictions,rppZone,rppSat,ecCity}=currentResults;
+  const code=overallCode(restrictions);
+  const bg=COLORS[code];
+  document.getElementById("header").style.background=bg;
+  document.getElementById("statusHeadline").textContent=code==="DANGER"?"🚨 Move your car NOW!":code==="WARN"?"⏰ Restriction coming up":"✅ Safe to park!";
   document.getElementById("quickSection").style.display="none";
   document.getElementById("notFound").style.display="none";
   document.getElementById("results").style.display="block";
   document.getElementById("resultStreet").textContent=street;
-  document.getElementById("resultTime").textContent=
-    now.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"})+" · "+
-    now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
-
-  // Holiday
-  const hol = HOLIDAYS.includes(todayStr(now));
-  document.getElementById("holidayBanner").style.display=hol?"block":"none";
-
-  // Map label
+  document.getElementById("resultTime").textContent=now.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"})+" · "+now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("holidayBanner").style.display=HOLIDAYS.includes(todayStr(now))?"block":"none";
+  document.getElementById("ecNote").style.display=ecCity?"block":"none";
   document.getElementById("mapLabel").textContent="Map View · "+street;
 
   // Status cards
-  const cardsEl = document.getElementById("statusCards");
-  cardsEl.innerHTML = restrictions.map((r,i)=>{
-    const s=getStatus(r,now);
-    const c=COLORS[s.code]; const ic=ICONS[s.code];
+  const cardsEl=document.getElementById("statusCards");
+  cardsEl.innerHTML=restrictions.map((r,i)=>{
+    const s=getStatus(r,now);const c=COLORS[s.code];const ic=ICONS[s.code];
     let detail="";
-    if(s.code==="DANGER") detail=`Until ${fmt12(r.endH,r.endM)} · ${s.minsLeft} min left`;
-    else if(s.code==="WARN") detail=`Restriction at ${s.startLabel} · ${s.minsTil} min away`;
-    else if(s.nextDate) detail=`Next restriction: ${fmtDate(s.nextDate)}, ${fmt12(r.startH,r.startM)}`;
-    else if(s.past) detail="Restriction passed for today";
-    const showReminder = s.code==="WARN"||(s.code==="SAFE"&&s.nextDate);
-    return `
-      <div class="status-card">
-        <div class="card-bar" style="background:${c}"></div>
-        <div class="card-body">
-          <div class="card-inner">
-            <div style="flex:1">
-              <div class="card-side-label">${r.side} side · ${r.week} ${r.day}</div>
-              <div class="card-status" style="color:${c}">${ic} ${s.code==="DANGER"?"NO PARKING":s.code==="WARN"?"Move soon":"Safe to park"}</div>
-              <div class="card-detail">${detail}</div>
-            </div>
-            <div class="card-icon">${ic}</div>
+    if(s.code==="DANGER")detail=`Until ${fmt12(r.endH,r.endM)} · ${s.minsLeft} min left`;
+    else if(s.code==="WARN")detail=`Restriction at ${s.startLabel} · ${s.minsTil} min away`;
+    else if(s.nextDate)detail=`Next restriction: ${fmtDate(s.nextDate)}, ${fmt12(r.startH,r.startM)}`;
+    else if(s.past)detail="Restriction passed for today";
+    const showRem=s.code==="WARN"||(s.code==="SAFE"&&s.nextDate);
+    return `<div class="status-card"><div class="card-bar" style="background:${c}"></div><div class="card-body"><div class="card-inner"><div style="flex:1"><div class="card-side-label">${r.side} side · ${r.week} ${r.day}</div><div class="card-status" style="color:${c}">${ic} ${s.code==="DANGER"?"NO PARKING":s.code==="WARN"?"Move soon":"Safe to park"}</div><div class="card-detail">${detail}</div></div><div class="card-icon">${ic}</div></div>${showRem?`<button class="reminder-btn" data-idx="${i}">🔔 Remind me to move my car</button>`:""}</div></div>`;
+  }).join("");
+  cardsEl.querySelectorAll(".reminder-btn").forEach(btn=>{btn.onclick=()=>openModal(restrictions[+btn.dataset.idx])});
+
+  // Permit card
+  const permitEl=document.getElementById("permitCard");
+  if(rppZone && RPP_INFO[rppZone]){
+    const z=RPP_INFO[rppZone];
+    const satText=rppSat?" + Saturdays":"";
+    permitEl.innerHTML=`
+      <div class="permit-card">
+        <div class="permit-bar"></div>
+        <div class="permit-body">
+          <div class="permit-title">🅿️ Permit Parking Info</div>
+          <div class="permit-row">
+            <span class="permit-badge" style="background:${z.color};color:${z.text}">${z.label}</span>
+            <div class="permit-text"><span class="permit-highlight">2 hour limit</span> for non-permit holders<br>${z.hours}${satText}</div>
           </div>
-          ${showReminder?`<button class="reminder-btn" data-idx="${i}">🔔 Remind me to move my car</button>`:""}
+          <div class="permit-row">
+            <span class="permit-badge" style="background:#34C759;color:#fff">✓ Exempt</span>
+            <div class="permit-text"><span class="permit-highlight">${z.label} permit holders</span> can park beyond 2 hours</div>
+          </div>
+          <div class="permit-row">
+            <span class="permit-badge" style="background:#f1f5f9;color:#64748b">Note</span>
+            <div class="permit-text">RPP permits <strong>do not</strong> override street sweeping — everyone must move on sweeping days</div>
+          </div>
         </div>
       </div>`;
-  }).join("");
-
-  cardsEl.querySelectorAll(".reminder-btn").forEach(btn=>{
-    btn.onclick=()=>openModal(restrictions[+btn.dataset.idx]);
-  });
+  } else if(currentCity==="berkeley"){
+    permitEl.innerHTML=`<div class="permit-card"><div class="permit-bar"></div><div class="permit-body"><div class="permit-title">🅿️ Parking Limit</div><div class="permit-row"><span class="permit-badge" style="background:#f1f5f9;color:#64748b">Info</span><div class="permit-text">No RPP zone on this street — standard parking rules apply. Check posted signs for any time limits.</div></div></div></div>`;
+  } else if(currentCity==="el cerrito"){
+    permitEl.innerHTML=`<div class="permit-card"><div class="permit-bar"></div><div class="permit-body"><div class="permit-title">🅿️ El Cerrito Parking</div><div class="permit-row"><span class="permit-badge" style="background:#f1f5f9;color:#64748b">Info</span><div class="permit-text">El Cerrito does not have a residential permit zone system like Berkeley. Check posted signs for any time limits on this street.</div></div></div></div>`;
+  } else {
+    permitEl.innerHTML="";
+  }
 
   renderMap(restrictions);
   renderReminders();
 }
 
-// ── MAP ───────────────────────────────────────────────────────────────────────
-function renderMap(restrictions) {
-  const visual = document.getElementById("mapVisual");
-  // Remove old blocks
+function renderMap(restrictions){
+  const visual=document.getElementById("mapVisual");
   visual.querySelectorAll(".map-block,.map-side-label").forEach(e=>e.remove());
   const blocks=[{label:"100–199",pct:0},{label:"200–299",pct:25},{label:"300–399",pct:50},{label:"400–499",pct:75}];
-  const top = restrictions[0]||restrictions[0];
-  const bot = restrictions[1]||restrictions[0];
-  blocks.forEach((b,i)=>{
-    const ts=getStatus(top,now); const bs=getStatus(bot,now);
-    const topEl=document.createElement("div");
-    topEl.className="map-block";
-    topEl.style.cssText=`top:0;left:${b.pct}%;background:${COLORS[ts.code]}22;border:2px solid ${COLORS[ts.code]};color:${COLORS[ts.code]}`;
-    topEl.textContent=b.label; visual.appendChild(topEl);
-    const botEl=document.createElement("div");
-    botEl.className="map-block";
-    botEl.style.cssText=`bottom:0;left:${b.pct}%;background:${COLORS[bs.code]}22;border:2px solid ${COLORS[bs.code]};color:${COLORS[bs.code]}`;
-    botEl.textContent=b.label; visual.appendChild(botEl);
+  const top=restrictions[0],bot=restrictions[1]||restrictions[0];
+  blocks.forEach(b=>{
+    const ts=getStatus(top,now),bs=getStatus(bot,now);
+    const te=document.createElement("div");te.className="map-block";te.style.cssText=`top:0;left:${b.pct}%;background:${COLORS[ts.code]}22;border:2px solid ${COLORS[ts.code]};color:${COLORS[ts.code]}`;te.textContent=b.label;visual.appendChild(te);
+    const be=document.createElement("div");be.className="map-block";be.style.cssText=`bottom:0;left:${b.pct}%;background:${COLORS[bs.code]}22;border:2px solid ${COLORS[bs.code]};color:${COLORS[bs.code]}`;be.textContent=b.label;visual.appendChild(be);
   });
-  const tl=document.createElement("div"); tl.className="map-side-label";
-  tl.style.cssText="top:4px;right:0"; tl.textContent=`${top.side} ↑`; visual.appendChild(tl);
-  const bl=document.createElement("div"); bl.className="map-side-label";
-  bl.style.cssText="bottom:4px;right:0"; bl.textContent=`${bot.side} ↓`; visual.appendChild(bl);
+  const tl=document.createElement("div");tl.className="map-side-label";tl.style.cssText="top:4px;right:0";tl.textContent=`${top.side} ↑`;visual.appendChild(tl);
+  const bl=document.createElement("div");bl.className="map-side-label";bl.style.cssText="bottom:4px;right:0";bl.textContent=`${bot.side} ↓`;visual.appendChild(bl);
 }
 
-// ── MODAL ─────────────────────────────────────────────────────────────────────
-function openModal(r) {
+function openModal(r){
   modalRestriction=r;
   document.getElementById("modalSub").textContent=`Remind me before the ${r.side} side restriction at ${fmt12(r.startH,r.startM)}.`;
   document.getElementById("modal").classList.add("show");
 }
 document.getElementById("modalCancel").onclick=()=>document.getElementById("modal").classList.remove("show");
-document.getElementById("modal").onclick=(e)=>{if(e.target===document.getElementById("modal"))document.getElementById("modal").classList.remove("show");};
-document.querySelectorAll(".time-chip").forEach(chip=>{
-  chip.onclick=()=>{ selectedMins=+chip.dataset.mins; document.querySelectorAll(".time-chip").forEach(c=>c.classList.remove("active")); chip.classList.add("active"); };
-});
+document.getElementById("modal").onclick=e=>{if(e.target===document.getElementById("modal"))document.getElementById("modal").classList.remove("show")};
+document.querySelectorAll(".time-chip").forEach(chip=>{chip.onclick=()=>{selectedMins=+chip.dataset.mins;document.querySelectorAll(".time-chip").forEach(c=>c.classList.remove("active"));chip.classList.add("active")}});
 document.getElementById("modalSet").onclick=()=>{
-  if(!modalRestriction) return;
+  if(!modalRestriction)return;
   const rem={id:Date.now(),street:currentResults?.street,side:modalRestriction.side,mins:selectedMins,time:fmt12(modalRestriction.startH,modalRestriction.startM),startH:modalRestriction.startH,startM:modalRestriction.startM};
-  reminders.push(rem); localStorage.setItem("ps_reminders",JSON.stringify(reminders));
-  scheduleNotification(rem,modalRestriction);
+  reminders.push(rem);localStorage.setItem("ps_reminders",JSON.stringify(reminders));
+  if("Notification" in window){Notification.requestPermission().then(p=>{if(p==="granted"){const delay=(modalRestriction.startH*60+modalRestriction.startM-now.getHours()*60-now.getMinutes()-selectedMins)*60000;if(delay>0)setTimeout(()=>new Notification("🚗 ParkSafe: Move your car!",{body:`${rem.side} side of ${rem.street} — restriction starts in ${rem.mins} min`}),delay)}})}
   document.getElementById("modal").classList.remove("show");
   renderReminders();
   showToast(`🔔 Reminder set — ${selectedMins} min before restriction!`);
 };
 
-function scheduleNotification(rem,r) {
-  if(!("Notification" in window)) return;
-  Notification.requestPermission().then(perm=>{
-    if(perm==="granted"){
-      const delay=(r.startH*60+r.startM-now.getHours()*60-now.getMinutes()-rem.mins)*60000;
-      if(delay>0) setTimeout(()=>new Notification("🚗 ParkSafe: Move your car!",{body:`${rem.side} side of ${rem.street} — restriction starts in ${rem.mins} min`,icon:"🅿️"}),delay);
-    }
-  });
-}
-
-// ── REMINDERS ─────────────────────────────────────────────────────────────────
-function renderReminders() {
-  const sec=document.getElementById("remindersSection");
-  const list=document.getElementById("remindersList");
-  if(reminders.length===0){sec.style.display="none";return;}
+function renderReminders(){
+  const sec=document.getElementById("remindersSection"),list=document.getElementById("remindersList");
+  if(!reminders.length){sec.style.display="none";return}
   sec.style.display="block";
-  list.innerHTML=reminders.map(r=>`
-    <div class="reminder-item">
-      <div><div class="reminder-title">🔔 ${r.street||"Unknown"} · ${r.side} side</div>
-      <div class="reminder-sub">${r.mins} min before ${r.time}</div></div>
-      <button class="reminder-del" data-id="${r.id}">✕</button>
-    </div>`).join("");
-  list.querySelectorAll(".reminder-del").forEach(btn=>{
-    btn.onclick=()=>{ reminders=reminders.filter(r=>r.id!==+btn.dataset.id); localStorage.setItem("ps_reminders",JSON.stringify(reminders)); renderReminders(); };
-  });
+  list.innerHTML=reminders.map(r=>`<div class="reminder-item"><div><div class="reminder-title">🔔 ${r.street||"?"} · ${r.side} side</div><div class="reminder-sub">${r.mins} min before ${r.time}</div></div><button class="reminder-del" data-id="${r.id}">✕</button></div>`).join("");
+  list.querySelectorAll(".reminder-del").forEach(btn=>{btn.onclick=()=>{reminders=reminders.filter(r=>r.id!==+btn.dataset.id);localStorage.setItem("ps_reminders",JSON.stringify(reminders));renderReminders()}});
 }
 
-// ── GPS ───────────────────────────────────────────────────────────────────────
+// GPS
 document.getElementById("gpsBtn").onclick=()=>{
-  if(!navigator.geolocation){showToast("GPS not supported on this device");return;}
-  const btn=document.getElementById("gpsBtn");
-  const errEl=document.getElementById("gpsError");
-  btn.textContent="📡 Detecting your street..."; btn.classList.add("loading"); errEl.style.display="none";
+  if(!navigator.geolocation){showToast("GPS not supported");return}
+  const btn=document.getElementById("gpsBtn"),errEl=document.getElementById("gpsError");
+  btn.textContent="📡 Detecting your street...";btn.classList.add("loading");errEl.style.display="none";
   navigator.geolocation.getCurrentPosition(async pos=>{
     try{
-      const {latitude:lat,longitude:lon}=pos.coords;
+      const{latitude:lat,longitude:lon}=pos.coords;
       const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
       const data=await res.json();
       const road=data.address?.road||"";
       document.getElementById("searchInput").value=road;
       doSearch(road);
       showToast(`📍 Found: ${road}`);
-    }catch{
-      errEl.textContent="Couldn't read street. Try typing."; errEl.style.display="block";
-    }
-    btn.textContent="📍 Use my location"; btn.classList.remove("loading");
-  },()=>{
-    errEl.textContent="Location denied — please type the street name."; errEl.style.display="block";
-    btn.textContent="📍 Use my location"; btn.classList.remove("loading");
-  });
+    }catch{errEl.textContent="Couldn't read street. Try typing.";errEl.style.display="block"}
+    btn.textContent="📍 Use my location";btn.classList.remove("loading");
+  },()=>{errEl.textContent="Location denied — please type the street name.";errEl.style.display="block";btn.textContent="📍 Use my location";btn.classList.remove("loading")});
 };
 
-// ── SEARCH INPUT ──────────────────────────────────────────────────────────────
+// Search input
 document.getElementById("searchInput").oninput=function(){
-  const val=this.value;
-  const sug=document.getElementById("suggestions");
-  if(val.length<2){sug.style.display="none";sug.innerHTML="";return;}
+  const val=this.value,sug=document.getElementById("suggestions");
+  if(val.length<2){sug.style.display="none";sug.innerHTML="";return}
   const matches=Object.keys(STREET_DATA[currentCity]).filter(k=>k.includes(val.toLowerCase()));
-  if(!matches.length){sug.style.display="none";return;}
+  if(!matches.length){sug.style.display="none";return}
   sug.innerHTML=matches.map(s=>`<div class="suggestion-item" data-street="${s}">📍 ${s}</div>`).join("");
   sug.style.display="block";
-  sug.querySelectorAll(".suggestion-item").forEach(item=>{
-    item.onclick=()=>{ document.getElementById("searchInput").value=item.dataset.street; doSearch(item.dataset.street); };
-  });
+  sug.querySelectorAll(".suggestion-item").forEach(item=>{item.onclick=()=>{document.getElementById("searchInput").value=item.dataset.street;doSearch(item.dataset.street)}});
 };
-document.getElementById("searchInput").onkeydown=function(e){if(e.key==="Enter")doSearch(this.value);};
+document.getElementById("searchInput").onkeydown=function(e){if(e.key==="Enter")doSearch(this.value)};
 document.getElementById("searchBtn").onclick=()=>doSearch(document.getElementById("searchInput").value);
 
-// ── MAP TOGGLE ────────────────────────────────────────────────────────────────
+// Map toggle
 document.getElementById("mapToggle").onclick=()=>{
   mapOpen=!mapOpen;
   document.getElementById("mapView").style.display=mapOpen?"block":"none";
-  const btn=document.getElementById("mapToggle");
-  btn.classList.toggle("active",mapOpen);
-  btn.textContent=mapOpen?"📋 List":"🗺️ Map";
+  document.getElementById("mapToggle").classList.toggle("active",mapOpen);
+  document.getElementById("mapToggle").textContent=mapOpen?"📋 List":"🗺️ Map";
 };
 
-// ── SHARE ─────────────────────────────────────────────────────────────────────
+// Share
 document.getElementById("shareBtn").onclick=()=>{
-  const shareData={title:"ParkSafe 🅿️",text:"Never get a street sweeping ticket again! Check ParkSafe:",url:window.location.href};
-  if(navigator.share){navigator.share(shareData);}
-  else{navigator.clipboard.writeText(window.location.href).then(()=>showToast("🔗 Link copied! Share with friends"));}
+  const d={title:"ParkSafe 🅿️",text:"Never get a street sweeping ticket! Check ParkSafe — free parking checker for Berkeley, Oakland, El Cerrito & SF:",url:window.location.href};
+  if(navigator.share)navigator.share(d);
+  else navigator.clipboard.writeText(window.location.href).then(()=>showToast("🔗 Link copied!"));
 };
 
-// ── PWA INSTALL ───────────────────────────────────────────────────────────────
-window.addEventListener("beforeinstallprompt",e=>{
-  e.preventDefault(); deferredInstallPrompt=e;
-  const banner=document.getElementById("installBanner");
-  if(!localStorage.getItem("ps_install_dismissed")) banner.style.display="flex";
-});
-document.getElementById("installBtn").onclick=()=>{
-  if(deferredInstallPrompt){deferredInstallPrompt.prompt();deferredInstallPrompt.userChoice.then(()=>{deferredInstallPrompt=null;document.getElementById("installBanner").style.display="none";});}
-};
-document.getElementById("dismissInstall").onclick=()=>{
-  document.getElementById("installBanner").style.display="none";
-  localStorage.setItem("ps_install_dismissed","1");
-};
+// PWA install
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;if(!localStorage.getItem("ps_install_dismissed"))document.getElementById("installBanner").style.display="flex"});
+document.getElementById("installBtn").onclick=()=>{if(deferredInstallPrompt){deferredInstallPrompt.prompt();deferredInstallPrompt.userChoice.then(()=>{deferredInstallPrompt=null;document.getElementById("installBanner").style.display="none"})}};
+document.getElementById("dismissInstall").onclick=()=>{document.getElementById("installBanner").style.display="none";localStorage.setItem("ps_install_dismissed","1")};
 
-// ── SERVICE WORKER ────────────────────────────────────────────────────────────
+// Service worker
 if("serviceWorker" in navigator){
-  const sw=`
-    const CACHE="parksafe-v1";
-    const ASSETS=["/"];
-    self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
-    self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
-    self.addEventListener("push",e=>{const d=e.data?.json()||{};self.registration.showNotification(d.title||"ParkSafe",{body:d.body,icon:"🅿️"});});
-  `;
+  const sw=`const CACHE="parksafe-v2";self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["/"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
   const blob=new Blob([sw],{type:"application/javascript"});
-  const url=URL.createObjectURL(blob);
-  navigator.serviceWorker.register(url).catch(()=>{});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
 }
 
-// ── CLOCK ─────────────────────────────────────────────────────────────────────
-setInterval(()=>{ now=new Date(); if(currentResults) renderResults(); },30000);
+// Clock
+setInterval(()=>{now=new Date();if(currentResults)renderResults()},30000);
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
+// Init
 buildCityTabs();
 buildQuickChips();
 renderReminders();
-
-// Auto-trigger GPS if URL param
-if(new URLSearchParams(location.search).get("gps")==="true"){
-  setTimeout(()=>document.getElementById("gpsBtn").click(),500);
-}
+if(new URLSearchParams(location.search).get("gps")==="true")setTimeout(()=>document.getElementById("gpsBtn").click(),500);
 </script>
 </body>
 </html>
